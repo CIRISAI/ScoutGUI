@@ -1,0 +1,175 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  packages: write
+  pull-requests: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/agui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/agui
+        run: npm ci --legacy-peer-deps
+
+      - name: Run linting
+        working-directory: apps/agui
+        run: |
+          # Add linting when configured
+          echo "Linting checks will be added"
+
+      - name: Run type checking
+        working-directory: apps/agui
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        working-directory: apps/agui
+        run: npm test -- --passWithNoTests
+
+      - name: Build application
+        working-directory: apps/agui
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+          NEXT_PUBLIC_MANAGER_URL: http://localhost:8888
+
+  build-docker:
+    name: Build Docker Images
+    needs: test
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME || github.actor }}
+          password: ${{ secrets.GHCR_TOKEN || secrets.DEPLOY_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./apps/agui/package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "App version: $VERSION"
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/ciris-gui
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.version.outputs.VERSION }},enable={{is_default_branch}}
+
+      - name: Build and push GUI Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile.agui
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.version.outputs.VERSION }}
+          outputs: ${{ github.event_name == 'pull_request' && 'type=docker,dest=/tmp/ciris-gui.tar' || '' }}
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if we have push permissions
+          if [[ -n "${{ secrets.GHCR_TOKEN }}" ]] || [[ -n "${{ secrets.DEPLOY_TOKEN }}" ]]; then
+            PUSH_ENABLED="true"
+          else
+            PUSH_ENABLED="false"
+          fi
+          
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "✅ Built images locally (PR - no push)" >> $GITHUB_STEP_SUMMARY
+          elif [[ "$PUSH_ENABLED" == "true" ]]; then
+            echo "✅ Built and pushed images to ghcr.io" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Built images successfully" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Push to ghcr.io skipped (no GHCR_TOKEN or DEPLOY_TOKEN secret configured)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable pushing, add one of these secrets to the repository:" >> $GITHUB_STEP_SUMMARY
+            echo "- GHCR_TOKEN: Personal Access Token with write:packages scope" >> $GITHUB_STEP_SUMMARY
+            echo "- DEPLOY_TOKEN: Organization deploy token" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Image Tags (when pushed):" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" | tr ',' '\n' | while read tag; do
+            echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
+          done
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
