@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAgent } from '@/contexts/AgentContextHybrid';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -902,6 +903,23 @@ export default function InteractPage() {
 
   // Demo landing page for unauthenticated users
   if (!user) {
+    const [animationStep, setAnimationStep] = useState(0);
+
+    useEffect(() => {
+      const timers = [
+        setTimeout(() => setAnimationStep(1), 500),   // User message
+        setTimeout(() => setAnimationStep(2), 1500),  // Explanation box
+        setTimeout(() => setAnimationStep(3), 2500),  // Task header
+        setTimeout(() => setAnimationStep(4), 3500),  // Thought content
+        setTimeout(() => setAnimationStep(5), 4500),  // CS·DS·E
+        setTimeout(() => setAnimationStep(6), 5500),  // SPEAK
+        setTimeout(() => setAnimationStep(7), 6500),  // PASSED
+        setTimeout(() => setAnimationStep(8), 7500),  // TASK_COMPLETE
+        setTimeout(() => setAnimationStep(9), 8500),  // Agent response
+      ];
+      return () => timers.forEach(t => clearTimeout(t));
+    }, []);
+
     return (
       <>
         <style jsx global>{`
@@ -912,18 +930,23 @@ export default function InteractPage() {
         `}</style>
         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+            <motion.div
+              className="text-center mb-12"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               <h1 className="text-4xl font-bold text-gray-900 mb-4">Meet Scout</h1>
               <p className="text-xl text-gray-600">
                 An AI agent with transparent ethical reasoning
               </p>
-            </div>
+            </motion.div>
 
             {/* Demo prompt */}
             <div className="bg-white shadow rounded-lg p-6 mb-6">
               <div className="text-center mb-6">
                 <p className="text-lg text-gray-700 font-medium">
-                  Ask Scout a question about ethical AI or CIRIS
+                  Watch Scout think through a question in real-time
                 </p>
               </div>
 
@@ -931,84 +954,178 @@ export default function InteractPage() {
               <div className="border rounded-lg bg-gray-50 p-4 mb-4 min-h-[400px]">
                 <div className="space-y-4">
                   {/* User message */}
-                  <div className="text-right">
-                    <div className="inline-block px-4 py-2 rounded bg-blue-500 text-white">
-                      How does Scout ensure ethical decision making?
-                    </div>
-                  </div>
+                  <AnimatePresence>
+                    {animationStep >= 1 && (
+                      <motion.div
+                        className="text-right"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <div className="inline-block px-4 py-2 rounded bg-blue-500 text-white">
+                          How does Scout ensure ethical decision making?
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Explanation box above reasoning */}
-                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 text-sm text-gray-700">
-                    <p className="font-semibold mb-2">🧠 Scout's Decision Process:</p>
-                    <ol className="list-decimal list-inside space-y-1">
-                      <li>Scout gathers context from memory graphs</li>
-                      <li>Considers the question from 3 angles: <span className="font-semibold">Ethical, Common Sense, and Domain Specific</span></li>
-                      <li>Decides what to do: <span className="font-semibold">speak, use a tool, or defer to an authorized human</span></li>
-                      <li>Checks with its conscience that this aligns with its values and identity</li>
-                      <li>Executes the choice and saves results to a <span className="font-semibold">tamper-evident audit log</span></li>
-                      <li>Tracks <span className="font-semibold">environmental impact</span> (CO₂ and water consumption)</li>
-                    </ol>
-                  </div>
+                  <AnimatePresence>
+                    {animationStep >= 2 && (
+                      <motion.div
+                        className="bg-blue-50 border-l-4 border-blue-500 p-4 text-sm text-gray-700"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <p className="font-semibold mb-2">🧠 Scout's Decision Process:</p>
+                        <ol className="list-decimal list-inside space-y-1">
+                          <li>Scout gathers context from memory graphs</li>
+                          <li>Considers the question from 3 angles: <span className="font-semibold">Ethical, Common Sense, and Domain Specific</span></li>
+                          <li>Decides what to do: <span className="font-semibold">speak, use a tool, or defer to an authorized human</span></li>
+                          <li>Checks with its conscience that this aligns with its values and identity</li>
+                          <li>Executes the choice and saves results to a <span className="font-semibold">tamper-evident audit log</span></li>
+                          <li>Tracks <span className="font-semibold">environmental impact</span> (CO₂ and water consumption)</li>
+                        </ol>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Task reasoning visualization */}
-                  <div className="ml-4">
-                    <div className="border rounded-lg">
-                      <div className="cursor-pointer p-3 bg-blue-500 text-white rounded-t-lg">
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-sm">
-                              🧠 Thinking about ethical AI
-                            </span>
-                            <span className="text-xs">1 thought</span>
+                  <AnimatePresence>
+                    {animationStep >= 3 && (
+                      <motion.div
+                        className="ml-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <div className="border rounded-lg">
+                          <div className="cursor-pointer p-3 bg-blue-500 text-white rounded-t-lg">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-sm">
+                                  🧠 Thinking about ethical AI
+                                </span>
+                                <span className="text-xs">1 thought</span>
+                              </div>
+                              <div className="flex gap-4 text-xs opacity-90">
+                                <div className="flex items-center gap-1">
+                                  <span>Carbon:</span>
+                                  <span className="font-mono">0.42g</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span>Water:</span>
+                                  <span className="font-mono">2.1ml</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span>1,234 tokens</span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex gap-4 text-xs opacity-90">
-                            <div className="flex items-center gap-1">
-                              <span>Carbon:</span>
-                              <span className="font-mono">0.42g</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span>Water:</span>
-                              <span className="font-mono">2.1ml</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span>1,234 tokens</span>
+                          <div className="p-3 bg-gray-50">
+                            <div className="border border-gray-200 rounded p-2 bg-white space-y-1">
+                              <AnimatePresence>
+                                {animationStep >= 4 && (
+                                  <motion.div
+                                    className="text-sm font-medium mb-2"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4 }}
+                                  >
+                                    Analyzing the question through my three decision making angles...
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                              <div className="flex flex-wrap gap-1 items-center text-xs">
+                                <AnimatePresence>
+                                  {animationStep >= 5 && (
+                                    <motion.span
+                                      className="px-1.5 py-0.5 bg-gray-100 rounded font-bold"
+                                      title="3 Decision Making Angles"
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      transition={{ duration: 0.3 }}
+                                    >
+                                      CS·DS·E
+                                    </motion.span>
+                                  )}
+                                  {animationStep >= 6 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        SPEAK
+                                      </motion.span>
+                                    </>
+                                  )}
+                                  {animationStep >= 7 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        PASSED
+                                      </motion.span>
+                                    </>
+                                  )}
+                                  {animationStep >= 8 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        TASK_COMPLETE
+                                      </motion.span>
+                                    </>
+                                  )}
+                                </AnimatePresence>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="p-3 bg-gray-50">
-                        <div className="border border-gray-200 rounded p-2 bg-white space-y-1">
-                          <div className="text-sm font-medium mb-2">
-                            Analyzing the question through my three decision making angles...
-                          </div>
-                          <div className="flex flex-wrap gap-1 items-center text-xs">
-                            <span className="px-1.5 py-0.5 bg-gray-100 rounded font-bold" title="3 Decision Making Angles">
-                              CS·DS·E
-                            </span>
-                            <span className="text-gray-400">→</span>
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold">
-                              SPEAK
-                            </span>
-                            <span className="text-gray-400">→</span>
-                            <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-bold">
-                              PASSED
-                            </span>
-                            <span className="text-gray-400">→</span>
-                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold">
-                              TASK_COMPLETE
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Agent response */}
-                  <div className="text-left">
-                    <div className="inline-block px-4 py-2 rounded bg-gray-200">
-                      Scout ensures ethical decision making through a multi-layered approach: every thought is processed through three simultaneous perspectives (ethical, common sense, and domain-specific), followed by a conscience check that verifies alignment with core values. All decisions are recorded in a tamper-evident audit log with full transparency.
-                    </div>
-                  </div>
+                  <AnimatePresence>
+                    {animationStep >= 9 && (
+                      <motion.div
+                        className="text-left"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <div className="inline-block px-4 py-2 rounded bg-gray-200">
+                          Scout ensures ethical decision making through a multi-layered approach: every thought is processed through three simultaneous perspectives (ethical, common sense, and domain-specific), followed by a conscience check that verifies alignment with core values. All decisions are recorded in a tamper-evident audit log with full transparency.
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
