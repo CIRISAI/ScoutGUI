@@ -907,15 +907,26 @@ export default function InteractPage() {
 
     useEffect(() => {
       const timers = [
-        setTimeout(() => setAnimationStep(1), 500),   // User message
-        setTimeout(() => setAnimationStep(2), 1500),  // Explanation box
-        setTimeout(() => setAnimationStep(3), 2500),  // Task header
-        setTimeout(() => setAnimationStep(4), 3500),  // Thought content
-        setTimeout(() => setAnimationStep(5), 4500),  // CS·DS·E
-        setTimeout(() => setAnimationStep(6), 5500),  // SPEAK
-        setTimeout(() => setAnimationStep(7), 6500),  // PASSED
-        setTimeout(() => setAnimationStep(8), 7500),  // TASK_COMPLETE
-        setTimeout(() => setAnimationStep(9), 8500),  // Agent response
+        setTimeout(() => setAnimationStep(1), 500),    // User message
+        setTimeout(() => setAnimationStep(2), 1500),   // Explanation step 1: Scout gathers context
+        setTimeout(() => setAnimationStep(3), 2500),   // Task 1 header
+        setTimeout(() => setAnimationStep(4), 3000),   // Thought 1 content
+        setTimeout(() => setAnimationStep(5), 3500),   // Explanation step 2: 3 angles
+        setTimeout(() => setAnimationStep(6), 4000),   // CS·DS·E
+        setTimeout(() => setAnimationStep(7), 4500),   // Explanation step 3: Decides what to do
+        setTimeout(() => setAnimationStep(8), 5000),   // SPEAK (action)
+        setTimeout(() => setAnimationStep(9), 5500),   // Explanation step 4: Conscience check
+        setTimeout(() => setAnimationStep(10), 6000),  // PASSED
+        setTimeout(() => setAnimationStep(11), 6500),  // Explanation step 5: Execute
+        setTimeout(() => setAnimationStep(12), 7000),  // SPEAK (executed)
+        setTimeout(() => setAnimationStep(13), 7500),  // Agent response
+        setTimeout(() => setAnimationStep(14), 8500),  // Explanation step 6: Follow-up
+        setTimeout(() => setAnimationStep(15), 9000),  // Task 2 header
+        setTimeout(() => setAnimationStep(16), 9500),  // Thought 2 content
+        setTimeout(() => setAnimationStep(17), 10000), // CS·DS·E (thought 2)
+        setTimeout(() => setAnimationStep(18), 10500), // TASK_COMPLETE (action)
+        setTimeout(() => setAnimationStep(19), 11000), // EXEMPT
+        setTimeout(() => setAnimationStep(20), 11500), // TASK_COMPLETE (executed)
       ];
       return () => timers.forEach(t => clearTimeout(t));
     }, []);
@@ -980,18 +991,68 @@ export default function InteractPage() {
                       >
                         <p className="font-semibold mb-2">🧠 Scout's Decision Process:</p>
                         <ol className="list-decimal list-inside space-y-1">
-                          <li>Scout gathers context from memory graphs</li>
-                          <li>Considers the question from 3 angles: <span className="font-semibold">Ethical, Common Sense, and Domain Specific</span></li>
-                          <li>Decides what to do: <span className="font-semibold">speak, use a tool, or defer to an authorized human</span></li>
-                          <li>Checks with its conscience that this aligns with its values and identity</li>
-                          <li>Executes the choice and saves results to a <span className="font-semibold">tamper-evident audit log</span></li>
-                          <li>Tracks <span className="font-semibold">environmental impact</span> (CO₂ and water consumption)</li>
+                          <AnimatePresence>
+                            {animationStep >= 2 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Scout gathers context from memory graphs
+                              </motion.li>
+                            )}
+                            {animationStep >= 5 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Considers the question from 3 angles: <span className="font-semibold">Ethical, Common Sense, and Domain Specific</span>
+                              </motion.li>
+                            )}
+                            {animationStep >= 7 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Decides what to do: <span className="font-semibold">speak, use a tool, or defer to an authorized human</span>
+                              </motion.li>
+                            )}
+                            {animationStep >= 9 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Checks with its conscience that this aligns with its values and identity
+                              </motion.li>
+                            )}
+                            {animationStep >= 11 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Executes the choice and saves results to a <span className="font-semibold">tamper-evident audit log</span>
+                              </motion.li>
+                            )}
+                            {animationStep >= 14 && (
+                              <motion.li
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.4 }}
+                              >
+                                Follow-up thoughts ensure the observation, viewed as a task by the agent, is handled completely
+                              </motion.li>
+                            )}
+                          </AnimatePresence>
                         </ol>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* Task reasoning visualization */}
+                  {/* Task 1 reasoning visualization */}
                   <AnimatePresence>
                     {animationStep >= 3 && (
                       <motion.div
@@ -1007,7 +1068,7 @@ export default function InteractPage() {
                                 <span className="font-medium text-sm">
                                   🧠 Thinking about ethical AI
                                 </span>
-                                <span className="text-xs">1 thought</span>
+                                <span className="text-xs">Thought 1</span>
                               </div>
                               <div className="flex gap-4 text-xs opacity-90">
                                 <div className="flex items-center gap-1">
@@ -1040,7 +1101,7 @@ export default function InteractPage() {
                               </AnimatePresence>
                               <div className="flex flex-wrap gap-1 items-center text-xs">
                                 <AnimatePresence>
-                                  {animationStep >= 5 && (
+                                  {animationStep >= 6 && (
                                     <motion.span
                                       className="px-1.5 py-0.5 bg-gray-100 rounded font-bold"
                                       title="3 Decision Making Angles"
@@ -1051,7 +1112,7 @@ export default function InteractPage() {
                                       CS·DS·E
                                     </motion.span>
                                   )}
-                                  {animationStep >= 6 && (
+                                  {animationStep >= 8 && (
                                     <>
                                       <motion.span
                                         className="text-gray-400"
@@ -1068,7 +1129,7 @@ export default function InteractPage() {
                                       </motion.span>
                                     </>
                                   )}
-                                  {animationStep >= 7 && (
+                                  {animationStep >= 10 && (
                                     <>
                                       <motion.span
                                         className="text-gray-400"
@@ -1085,7 +1146,127 @@ export default function InteractPage() {
                                       </motion.span>
                                     </>
                                   )}
-                                  {animationStep >= 8 && (
+                                  {animationStep >= 12 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        SPEAK
+                                      </motion.span>
+                                    </>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Task 2 reasoning visualization - Follow-up thought */}
+                  <AnimatePresence>
+                    {animationStep >= 15 && (
+                      <motion.div
+                        className="ml-4"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <div className="border rounded-lg">
+                          <div className="cursor-pointer p-3 bg-green-500 text-white rounded-t-lg">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-sm">
+                                  🧠 Completing the task
+                                </span>
+                                <span className="text-xs">Thought 2</span>
+                              </div>
+                              <div className="flex gap-4 text-xs opacity-90">
+                                <div className="flex items-center gap-1">
+                                  <span>Carbon:</span>
+                                  <span className="font-mono">0.12g</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span>Water:</span>
+                                  <span className="font-mono">0.6ml</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <span>342 tokens</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-3 bg-gray-50">
+                            <div className="border border-gray-200 rounded p-2 bg-white space-y-1">
+                              <AnimatePresence>
+                                {animationStep >= 16 && (
+                                  <motion.div
+                                    className="text-sm font-medium mb-2"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4 }}
+                                  >
+                                    Verifying task completion and finalizing...
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                              <div className="flex flex-wrap gap-1 items-center text-xs">
+                                <AnimatePresence>
+                                  {animationStep >= 17 && (
+                                    <motion.span
+                                      className="px-1.5 py-0.5 bg-gray-100 rounded font-bold"
+                                      title="3 Decision Making Angles"
+                                      initial={{ opacity: 0, scale: 0.8 }}
+                                      animate={{ opacity: 1, scale: 1 }}
+                                      transition={{ duration: 0.3 }}
+                                    >
+                                      CS·DS·E
+                                    </motion.span>
+                                  )}
+                                  {animationStep >= 18 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        TASK_COMPLETE
+                                      </motion.span>
+                                    </>
+                                  )}
+                                  {animationStep >= 19 && (
+                                    <>
+                                      <motion.span
+                                        className="text-gray-400"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                      >→</motion.span>
+                                      <motion.span
+                                        className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded font-bold"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                      >
+                                        EXEMPT
+                                      </motion.span>
+                                    </>
+                                  )}
+                                  {animationStep >= 20 && (
                                     <>
                                       <motion.span
                                         className="text-gray-400"
@@ -1113,7 +1294,7 @@ export default function InteractPage() {
 
                   {/* Agent response */}
                   <AnimatePresence>
-                    {animationStep >= 9 && (
+                    {animationStep >= 13 && (
                       <motion.div
                         className="text-left"
                         initial={{ opacity: 0, x: -20 }}
