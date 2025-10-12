@@ -18,8 +18,7 @@ export default function LoginPage() {
 
   // OAuth providers
   const oauthProviders = [
-    { provider: "google", name: "Google" },
-    { provider: "discord", name: "Discord" }
+    { provider: "google", name: "Google" }
   ];
 
   const handleBasicLogin = async (e: React.FormEvent) => {
