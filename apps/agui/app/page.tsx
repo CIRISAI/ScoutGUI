@@ -1052,7 +1052,7 @@ export default function InteractPage() {
                     )}
                   </AnimatePresence>
 
-                  {/* Task 1 reasoning visualization */}
+                  {/* Task reasoning visualization */}
                   <AnimatePresence>
                     {animationStep >= 3 && (
                       <motion.div
@@ -1068,24 +1068,37 @@ export default function InteractPage() {
                                 <span className="font-medium text-sm">
                                   🧠 Thinking about ethical AI
                                 </span>
-                                <span className="text-xs">Thought 1</span>
+                                <motion.span
+                                  className="text-xs"
+                                  key={animationStep >= 15 ? "2-thoughts" : "1-thought"}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                >
+                                  {animationStep >= 15 ? "2 thoughts" : "1 thought"}
+                                </motion.span>
                               </div>
-                              <div className="flex gap-4 text-xs opacity-90">
+                              <motion.div
+                                className="flex gap-4 text-xs opacity-90"
+                                key={animationStep >= 15 ? "updated-metrics" : "initial-metrics"}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                              >
                                 <div className="flex items-center gap-1">
                                   <span>Carbon:</span>
-                                  <span className="font-mono">0.42g</span>
+                                  <span className="font-mono">{animationStep >= 15 ? "0.54g" : "0.42g"}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <span>Water:</span>
-                                  <span className="font-mono">2.1ml</span>
+                                  <span className="font-mono">{animationStep >= 15 ? "2.7ml" : "2.1ml"}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <span>1,234 tokens</span>
+                                  <span>{animationStep >= 15 ? "1,576" : "1,234"} tokens</span>
                                 </div>
-                              </div>
+                              </motion.div>
                             </div>
                           </div>
-                          <div className="p-3 bg-gray-50">
+                          <div className="p-3 bg-gray-50 space-y-2">
+                            {/* Thought 1 */}
                             <div className="border border-gray-200 rounded p-2 bg-white space-y-1">
                               <AnimatePresence>
                                 {animationStep >= 4 && (
@@ -1166,126 +1179,97 @@ export default function InteractPage() {
                                 </AnimatePresence>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
-                  {/* Task 2 reasoning visualization - Follow-up thought */}
-                  <AnimatePresence>
-                    {animationStep >= 15 && (
-                      <motion.div
-                        className="ml-4"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                      >
-                        <div className="border rounded-lg">
-                          <div className="cursor-pointer p-3 bg-green-500 text-white rounded-t-lg">
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium text-sm">
-                                  🧠 Completing the task
-                                </span>
-                                <span className="text-xs">Thought 2</span>
-                              </div>
-                              <div className="flex gap-4 text-xs opacity-90">
-                                <div className="flex items-center gap-1">
-                                  <span>Carbon:</span>
-                                  <span className="font-mono">0.12g</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>Water:</span>
-                                  <span className="font-mono">0.6ml</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>342 tokens</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-3 bg-gray-50">
-                            <div className="border border-gray-200 rounded p-2 bg-white space-y-1">
-                              <AnimatePresence>
-                                {animationStep >= 16 && (
-                                  <motion.div
-                                    className="text-sm font-medium mb-2"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
-                                  >
-                                    Verifying task completion and finalizing...
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                              <div className="flex flex-wrap gap-1 items-center text-xs">
-                                <AnimatePresence>
-                                  {animationStep >= 17 && (
-                                    <motion.span
-                                      className="px-1.5 py-0.5 bg-gray-100 rounded font-bold"
-                                      title="3 Decision Making Angles"
-                                      initial={{ opacity: 0, scale: 0.8 }}
-                                      animate={{ opacity: 1, scale: 1 }}
-                                      transition={{ duration: 0.3 }}
-                                    >
-                                      CS·DS·E
-                                    </motion.span>
-                                  )}
-                                  {animationStep >= 18 && (
-                                    <>
-                                      <motion.span
-                                        className="text-gray-400"
+                            {/* Thought 2 */}
+                            <AnimatePresence>
+                              {animationStep >= 15 && (
+                                <motion.div
+                                  className="border border-gray-200 rounded p-2 bg-white space-y-1"
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.4 }}
+                                >
+                                  <AnimatePresence>
+                                    {animationStep >= 16 && (
+                                      <motion.div
+                                        className="text-sm font-medium mb-2"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                      >→</motion.span>
-                                      <motion.span
-                                        className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={{ duration: 0.4 }}
                                       >
-                                        TASK_COMPLETE
-                                      </motion.span>
-                                    </>
-                                  )}
-                                  {animationStep >= 19 && (
-                                    <>
-                                      <motion.span
-                                        className="text-gray-400"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                      >→</motion.span>
-                                      <motion.span
-                                        className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded font-bold"
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
-                                      >
-                                        EXEMPT
-                                      </motion.span>
-                                    </>
-                                  )}
-                                  {animationStep >= 20 && (
-                                    <>
-                                      <motion.span
-                                        className="text-gray-400"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                      >→</motion.span>
-                                      <motion.span
-                                        className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
-                                      >
-                                        TASK_COMPLETE
-                                      </motion.span>
-                                    </>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            </div>
+                                        Verifying task completion and finalizing...
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                  <div className="flex flex-wrap gap-1 items-center text-xs">
+                                    <AnimatePresence>
+                                      {animationStep >= 17 && (
+                                        <motion.span
+                                          className="px-1.5 py-0.5 bg-gray-100 rounded font-bold"
+                                          title="3 Decision Making Angles"
+                                          initial={{ opacity: 0, scale: 0.8 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          transition={{ duration: 0.3 }}
+                                        >
+                                          CS·DS·E
+                                        </motion.span>
+                                      )}
+                                      {animationStep >= 18 && (
+                                        <>
+                                          <motion.span
+                                            className="text-gray-400"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                          >→</motion.span>
+                                          <motion.span
+                                            className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                          >
+                                            TASK_COMPLETE
+                                          </motion.span>
+                                        </>
+                                      )}
+                                      {animationStep >= 19 && (
+                                        <>
+                                          <motion.span
+                                            className="text-gray-400"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                          >→</motion.span>
+                                          <motion.span
+                                            className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded font-bold"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                          >
+                                            EXEMPT
+                                          </motion.span>
+                                        </>
+                                      )}
+                                      {animationStep >= 20 && (
+                                        <>
+                                          <motion.span
+                                            className="text-gray-400"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                          >→</motion.span>
+                                          <motion.span
+                                            className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                          >
+                                            TASK_COMPLETE
+                                          </motion.span>
+                                        </>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       </motion.div>
