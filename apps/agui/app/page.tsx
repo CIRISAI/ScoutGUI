@@ -1345,6 +1345,43 @@ export default function InteractPage() {
                 </div>
               </div>
 
+              {/* Cumulative Environmental Impact */}
+              <AnimatePresence>
+                {animationStep >= 20 && (
+                  <motion.div
+                    className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <h4 className="text-sm font-semibold text-green-900 mb-3">Total Environmental Impact</h4>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <div className="text-gray-600">Carbon</div>
+                        <div className="font-mono font-bold text-green-900">0.54g CO₂</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          ≈ running a microwave for 0.5 seconds
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-600">Water</div>
+                        <div className="font-mono font-bold text-green-900">2.7ml</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          ≈ 1/2 teaspoon
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-600">Tokens</div>
+                        <div className="font-mono font-bold text-green-900">1,576</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          ≈ 1,200 words
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* CTA Button */}
               <div className="text-center">
                 <Link
@@ -1374,6 +1411,43 @@ export default function InteractPage() {
                 </p>
               </div>
             </div>
+
+            {/* Environmental Impact Explanation */}
+            <AnimatePresence>
+              {animationStep >= 20 && (
+                <motion.div
+                  className="bg-white shadow rounded-lg p-6 mt-8"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  <h3 className="text-lg font-semibold mb-3">Environmental Impact Calculations</h3>
+                  <div className="text-sm text-gray-600 space-y-3">
+                    <p>
+                      Scout tracks the environmental impact of every interaction to promote transparency and accountability in AI systems.
+                    </p>
+                    <ul className="list-disc list-inside space-y-2 ml-2">
+                      <li>
+                        <strong>Carbon Emissions:</strong> Calculated based on energy consumption of the LLM inference and the carbon intensity
+                        of the electrical grid serving the data center.
+                      </li>
+                      <li>
+                        <strong>Water Usage:</strong> Estimated using peer-reviewed methodologies including Water Usage Effectiveness (WUE)
+                        metrics and per-token consumption studies from Nature Scientific Reports (2024).
+                      </li>
+                      <li>
+                        <strong>Comparisons:</strong> Everyday equivalents help contextualize the impact - a typical query uses less energy
+                        than running a microwave for one second.
+                      </li>
+                    </ul>
+                    <p className="text-xs text-gray-500 pt-2 border-t">
+                      All environmental metrics are displayed in real-time as each thought completes, allowing users to see the cumulative
+                      impact of their interactions with Scout.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </>
