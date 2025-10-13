@@ -1433,8 +1433,9 @@ export default function InteractPage() {
                       </li>
                       <li>
                         <strong>Water Usage (Operational):</strong> Represents direct data center cooling water using Water Usage Effectiveness
-                        (WUE) of 1.5 L/kWh for Illinois data centers with evaporative cooling. This does <em>not</em> include lifecycle water
-                        (server manufacturing, embodied water in electricity generation, supply chain), which would add approximately 60-100x more.
+                        (WUE) of 1.5 L/kWh for Illinois data centers with evaporative cooling (172ml for this demo). Lifecycle water
+                        (server manufacturing, embodied water in electricity generation, supply chain) would add approximately 14.75L,
+                        bringing the total to ~14.92L - about 86x the operational usage.
                       </li>
                       <li>
                         <strong>Comparisons:</strong> Everyday equivalents help contextualize the impact - a typical complex query uses about
