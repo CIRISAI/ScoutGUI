@@ -1088,14 +1088,14 @@ export default function InteractPage() {
                                   >
                                     <div className="flex items-center gap-1">
                                       <span>Carbon:</span>
-                                      <span className="font-mono">{animationStep >= 20 ? "0.54g" : "0.42g"}</span>
+                                      <span className="font-mono">{animationStep >= 20 ? "45.9g" : "33.4g"} CO₂e</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                       <span>Water:</span>
-                                      <span className="font-mono">{animationStep >= 20 ? "2.7ml" : "2.1ml"}</span>
+                                      <span className="font-mono">{animationStep >= 20 ? "172ml" : "125ml"}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <span>{animationStep >= 20 ? "1,576" : "1,234"} tokens</span>
+                                      <span>{animationStep >= 20 ? "305,840" : "222,561"} tokens</span>
                                     </div>
                                   </motion.div>
                                 )}
@@ -1194,14 +1194,14 @@ export default function InteractPage() {
                                   >
                                     <div className="flex items-center gap-1">
                                       <span>Carbon:</span>
-                                      <span className="font-mono">0.42g</span>
+                                      <span className="font-mono">33.4g CO₂e</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                       <span>Water:</span>
-                                      <span className="font-mono">2.1ml</span>
+                                      <span className="font-mono">125ml</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <span>1,234 tokens</span>
+                                      <span>222,561 tokens</span>
                                     </div>
                                   </motion.div>
                                 )}
@@ -1306,14 +1306,14 @@ export default function InteractPage() {
                                       >
                                         <div className="flex items-center gap-1">
                                           <span>Carbon:</span>
-                                          <span className="font-mono">0.12g</span>
+                                          <span className="font-mono">12.5g CO₂e</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                           <span>Water:</span>
-                                          <span className="font-mono">0.6ml</span>
+                                          <span className="font-mono">47ml</span>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                          <span>342 tokens</span>
+                                          <span>83,279 tokens</span>
                                         </div>
                                       </motion.div>
                                     )}
@@ -1358,23 +1358,23 @@ export default function InteractPage() {
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <div className="text-gray-600">Carbon</div>
-                        <div className="font-mono font-bold text-green-900">0.54g CO₂</div>
+                        <div className="font-mono font-bold text-green-900">45.9g CO₂e</div>
                         <div className="text-xs text-gray-500 mt-1">
-                          ≈ running a microwave for 0.5 seconds
+                          ≈ microwave for 6 min
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-600">Water</div>
-                        <div className="font-mono font-bold text-green-900">2.7ml</div>
+                        <div className="text-gray-600">Water (Operational)</div>
+                        <div className="font-mono font-bold text-green-900">172ml</div>
                         <div className="text-xs text-gray-500 mt-1">
-                          ≈ 1/2 teaspoon
+                          ≈ 3/4 of a cup
                         </div>
                       </div>
                       <div>
                         <div className="text-gray-600">Tokens</div>
-                        <div className="font-mono font-bold text-green-900">1,576</div>
+                        <div className="font-mono font-bold text-green-900">305,840</div>
                         <div className="text-xs text-gray-500 mt-1">
-                          ≈ 1,200 words
+                          ≈ 230,000 words
                         </div>
                       </div>
                     </div>
@@ -1428,21 +1428,22 @@ export default function InteractPage() {
                     </p>
                     <ul className="list-disc list-inside space-y-2 ml-2">
                       <li>
-                        <strong>Carbon Emissions:</strong> Calculated based on energy consumption of the LLM inference and the carbon intensity
-                        of the electrical grid serving the data center.
+                        <strong>Carbon Emissions:</strong> Calculated based on energy consumption of the LLM inference (kWh per 1,000 tokens)
+                        and the carbon intensity of the electrical grid (400g CO₂/kWh for US East).
                       </li>
                       <li>
-                        <strong>Water Usage:</strong> Estimated using peer-reviewed methodologies including Water Usage Effectiveness (WUE)
-                        metrics and per-token consumption studies from Nature Scientific Reports (2024).
+                        <strong>Water Usage (Operational):</strong> Represents direct data center cooling water using Water Usage Effectiveness
+                        (WUE) of 1.5 L/kWh for Illinois data centers with evaporative cooling. This does <em>not</em> include lifecycle water
+                        (server manufacturing, embodied water in electricity generation, supply chain), which would add approximately 60-100x more.
                       </li>
                       <li>
-                        <strong>Comparisons:</strong> Everyday equivalents help contextualize the impact - a typical query uses less energy
-                        than running a microwave for one second.
+                        <strong>Comparisons:</strong> Everyday equivalents help contextualize the impact - a typical complex query uses about
+                        as much energy as running a microwave for 6 minutes.
                       </li>
                     </ul>
                     <p className="text-xs text-gray-500 pt-2 border-t">
-                      All environmental metrics are displayed in real-time as each thought completes, allowing users to see the cumulative
-                      impact of their interactions with Scout.
+                      <strong>Note:</strong> Full lifecycle environmental impact (including manufacturing, supply chain, embodied resources)
+                      would be significantly higher. These metrics show only direct operational impact from running the AI model.
                     </p>
                   </div>
                 </motion.div>
