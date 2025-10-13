@@ -1077,24 +1077,29 @@ export default function InteractPage() {
                                   {animationStep >= 15 ? "2 thoughts" : "1 thought"}
                                 </motion.span>
                               </div>
-                              <motion.div
-                                className="flex gap-4 text-xs opacity-90"
-                                key={animationStep >= 15 ? "updated-metrics" : "initial-metrics"}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                              >
-                                <div className="flex items-center gap-1">
-                                  <span>Carbon:</span>
-                                  <span className="font-mono">{animationStep >= 15 ? "0.54g" : "0.42g"}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>Water:</span>
-                                  <span className="font-mono">{animationStep >= 15 ? "2.7ml" : "2.1ml"}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <span>{animationStep >= 15 ? "1,576" : "1,234"} tokens</span>
-                                </div>
-                              </motion.div>
+                              <AnimatePresence>
+                                {animationStep >= 12 && (
+                                  <motion.div
+                                    className="flex gap-4 text-xs opacity-90"
+                                    key={animationStep >= 20 ? "updated-metrics" : "initial-metrics"}
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    transition={{ duration: 0.4 }}
+                                  >
+                                    <div className="flex items-center gap-1">
+                                      <span>Carbon:</span>
+                                      <span className="font-mono">{animationStep >= 20 ? "0.54g" : "0.42g"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span>Water:</span>
+                                      <span className="font-mono">{animationStep >= 20 ? "2.7ml" : "2.1ml"}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span>{animationStep >= 20 ? "1,576" : "1,234"} tokens</span>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
                           </div>
                           <div className="p-3 bg-gray-50 space-y-2">
