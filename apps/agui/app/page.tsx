@@ -1183,6 +1183,29 @@ export default function InteractPage() {
                                   )}
                                 </AnimatePresence>
                               </div>
+                              {/* Thought 1 metrics */}
+                              <AnimatePresence>
+                                {animationStep >= 12 && (
+                                  <motion.div
+                                    className="flex gap-3 text-xs text-gray-500 pt-1 border-t"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    transition={{ duration: 0.4 }}
+                                  >
+                                    <div className="flex items-center gap-1">
+                                      <span>Carbon:</span>
+                                      <span className="font-mono">0.42g</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span>Water:</span>
+                                      <span className="font-mono">2.1ml</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span>1,234 tokens</span>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </div>
 
                             {/* Thought 2 */}
@@ -1272,6 +1295,29 @@ export default function InteractPage() {
                                       )}
                                     </AnimatePresence>
                                   </div>
+                                  {/* Thought 2 metrics */}
+                                  <AnimatePresence>
+                                    {animationStep >= 20 && (
+                                      <motion.div
+                                        className="flex gap-3 text-xs text-gray-500 pt-1 border-t"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        transition={{ duration: 0.4 }}
+                                      >
+                                        <div className="flex items-center gap-1">
+                                          <span>Carbon:</span>
+                                          <span className="font-mono">0.12g</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span>Water:</span>
+                                          <span className="font-mono">0.6ml</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                          <span>342 tokens</span>
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </motion.div>
                               )}
                             </AnimatePresence>
