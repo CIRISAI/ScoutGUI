@@ -50,7 +50,7 @@ jobs:
 
       - name: Run tests
         working-directory: apps/agui
-        run: pnpm test -- --passWithNoTests
+        run: pnpm test --passWithNoTests
 
       - name: Build application
         working-directory: apps/agui
