@@ -94,29 +94,20 @@ function AccountPageContent() {
       localStorage.setItem('oauthProvider', provider);
       localStorage.setItem('oauthReturnUrl', '/account');
 
-      // Determine OAuth URLs based on deployment mode (similar to login flow)
-      let oauthUrl;
-      let redirectUri;
+      const apiBaseUrl = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
 
-      if (currentAgent) {
-        // Use agent-specific callback URL for linking
-        redirectUri = encodeURIComponent(`${window.location.origin}/oauth/${currentAgent.agent_id}/${provider}/callback`);
+      // Extract agent ID from API base URL (format: https://scoutapi.ciris.ai/api/{agent_id}/v1)
+      const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)\/v1/);
+      const agentId = agentIdMatch ? agentIdMatch[1] : (currentAgent?.agent_id || 'scout');
 
-        // Check if we're in managed mode or standalone
-        if (window.location.hostname.includes('agents.ciris.ai') || currentAgent.api_endpoint?.includes('/api/')) {
-          // Managed mode
-          oauthUrl = `${window.location.origin}/api/${currentAgent.agent_id}/v1/auth/oauth/${provider}/login`;
-        } else {
-          // Standalone mode
-          const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
-          oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;
-        }
+      // Use agent-specific callback URL for linking
+      const redirectUri = encodeURIComponent(`${window.location.origin}/oauth/${agentId}/${provider}/callback`);
 
-        // Redirect to OAuth provider
-        window.location.href = `${oauthUrl}?redirect_uri=${redirectUri}`;
-      } else {
-        toast.error('No agent selected');
-      }
+      // apiBaseUrl already includes /v1, so just append auth/oauth/{provider}/login
+      const oauthUrl = `${apiBaseUrl}/auth/oauth/${provider}/login`;
+
+      // Redirect to OAuth provider
+      window.location.href = `${oauthUrl}?redirect_uri=${redirectUri}`;
     } catch (error) {
       console.error('OAuth link error:', error);
       toast.error('Failed to initiate OAuth linking');

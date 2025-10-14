@@ -45,9 +45,15 @@ export default function LoginPage() {
       localStorage.removeItem('oauthReturnUrl');
 
       const apiBaseUrl = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
-      const callbackUrl = `${window.location.origin}/oauth/scout/${provider}/callback?marketing_opt_in=${marketingOptIn}`;
+
+      // Extract agent ID from API base URL (format: https://scoutapi.ciris.ai/api/{agent_id}/v1)
+      const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)\/v1/);
+      const agentId = agentIdMatch ? agentIdMatch[1] : 'scout';
+
+      const callbackUrl = `${window.location.origin}/oauth/${agentId}/${provider}/callback?marketing_opt_in=${marketingOptIn}`;
       const redirectUri = encodeURIComponent(callbackUrl);
-      const oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;
+      // apiBaseUrl already includes /v1, so just append auth/oauth/{provider}/login
+      const oauthUrl = `${apiBaseUrl}/auth/oauth/${provider}/login`;
 
       window.location.href = `${oauthUrl}?redirect_uri=${redirectUri}`;
     } catch (error) {
