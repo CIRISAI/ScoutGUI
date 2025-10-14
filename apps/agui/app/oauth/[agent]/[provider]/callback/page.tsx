@@ -20,34 +20,34 @@ function OAuthCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Configure SDK with agent-specific base URL for managed mode
-      // In managed mode: /api/{agent_id}/v1/...
-      // In standalone mode: use env variable or origin
-      const isManaged = window.location.hostname === 'agents.ciris.ai' || window.location.pathname.startsWith('/api/');
-      const baseURL = isManaged
-        ? `${window.location.origin}/api/${agentId}`
-        : (process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin);
-
-      cirisClient.setConfig({ baseURL });
+      try {
+        // Configure SDK with agent-specific base URL
+        const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || `${window.location.origin}/api/${agentId}/v1`;
+        console.log('[OAuth Callback] Configuring SDK with baseURL:', baseURL);
+        cirisClient.setConfig({ baseURL });
 
       // Handle the OAuth token response from API
       const accessToken = searchParams.get('access_token');
       const tokenType = searchParams.get('token_type');
       const role = searchParams.get('role');
       const userId = searchParams.get('user_id');
+      const expiresIn = searchParams.get('expires_in');
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
+
+      console.log('[OAuth Callback] Received params:', { accessToken: !!accessToken, tokenType, role, userId, expiresIn });
 
       // Set the token in the SDK BEFORE making any API calls
       if (accessToken && tokenType && role && userId) {
         AuthStore.saveToken({
           access_token: accessToken,
           token_type: tokenType,
-          expires_in: 3600, // Default 1 hour
+          expires_in: expiresIn ? parseInt(expiresIn, 10) : 3600,
           user_id: userId,
           role: role,
           created_at: Date.now()
         });
+        console.log('[OAuth Callback] Token saved to AuthStore');
       }
 
       // Check if this is an account linking operation
@@ -101,6 +101,7 @@ function OAuthCallbackContent() {
           }
         } else {
           // This is a login operation - set authentication state
+          console.log('[OAuth Callback] Processing login operation');
           const user = {
             user_id: userId,
             username: userId,
@@ -112,6 +113,11 @@ function OAuthCallbackContent() {
             last_login: new Date().toISOString()
           };
 
+          // Save user to AuthStore
+          AuthStore.saveUser(user);
+          console.log('[OAuth Callback] User saved to AuthStore:', user);
+
+          // Set auth context
           setToken(accessToken);
           setUser(user);
 
@@ -120,6 +126,8 @@ function OAuthCallbackContent() {
           localStorage.setItem('selectedAgentId', agentId);
           localStorage.setItem('selectedAgentName', agentName);
           localStorage.setItem('authProvider', provider);
+
+          console.log('[OAuth Callback] Redirecting to dashboard');
 
           // Redirect to dashboard or originally requested page
           const returnUrl = localStorage.getItem('authReturnUrl') || '/';
@@ -132,6 +140,10 @@ function OAuthCallbackContent() {
           ? `/account?error=oauth_failed&provider=${provider}&agent=${agentId}`
           : `/login?error=oauth_failed&provider=${provider}&agent=${agentId}`;
         router.push(redirectUrl);
+      }
+      } catch (error) {
+        console.error('[OAuth Callback] Error:', error);
+        router.push(`/login?error=callback_failed&description=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`);
       }
     };
 
