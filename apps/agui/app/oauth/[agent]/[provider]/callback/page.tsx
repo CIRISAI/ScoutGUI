@@ -1,7 +1,5 @@
 'use client';
 
-export const runtime = 'edge';
-
 import { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../../../../contexts/AuthContext';
@@ -32,12 +30,30 @@ function OAuthCallbackContent() {
         const url = window.location.href;
         console.log('[OAuth Callback] Original URL:', url);
 
-        // Check for malformed query string with double ?
+        let fixedUrl = url;
+        let needsFix = false;
+
+        // Check for malformed query string with double ? (raw)
         const doubleQuestionMark = url.match(/\?([^?]+)\?(.+)/);
         if (doubleQuestionMark) {
-          // Fix the URL by replacing second ? with &
-          const fixedUrl = url.replace(/\?([^?]+)\?/, '?$1&');
-          console.log('[OAuth Callback] Fixed malformed URL:', fixedUrl);
+          fixedUrl = url.replace(/\?([^?]+)\?/, '?$1&');
+          needsFix = true;
+          console.log('[OAuth Callback] Fixed double ? in URL');
+        }
+        // Check for URL-encoded ? (%3F) in query string
+        else if (url.includes('%3F')) {
+          const [baseUrl, queryString] = url.split('?');
+          if (queryString) {
+            // Replace %3F with & in the query string
+            const fixedQuery = queryString.replace(/%3F/g, '&');
+            fixedUrl = `${baseUrl}?${fixedQuery}`;
+            needsFix = true;
+            console.log('[OAuth Callback] Fixed URL-encoded %3F in URL');
+          }
+        }
+
+        if (needsFix) {
+          console.log('[OAuth Callback] Fixed URL:', fixedUrl);
 
           // Parse the fixed URL
           const urlObj = new URL(fixedUrl);
