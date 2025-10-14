@@ -56,8 +56,8 @@ jobs:
         working-directory: apps/agui
         run: pnpm run pages:build
         env:
-          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL || 'https://scoutapi.ciris.ai/api/scout-remote-5r5ft8/v1' }}
-          NEXT_PUBLIC_SCOUT_API_URL: ${{ secrets.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-5r5ft8/v1' }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1' }}
+          NEXT_PUBLIC_SCOUT_API_URL: ${{ secrets.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1' }}
 
   build-docker:
     name: Build Docker Images
