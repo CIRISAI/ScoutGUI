@@ -13,7 +13,7 @@ function OAuthCallbackContent() {
   const router = useRouter();
   const params = useParams();
   const { setUser, setToken } = useAuth();
-  
+
   // Extract dynamic route parameters
   const agentId = params.agent as string;
   const provider = params.provider as string;
@@ -26,14 +26,36 @@ function OAuthCallbackContent() {
         console.log('[OAuth Callback] Configuring SDK with baseURL:', baseURL);
         cirisClient.setConfig({ baseURL });
 
+      // Sanitize malformed URL from API (handles double ? in query string)
+      let sanitizedParams = searchParams;
+      if (typeof window !== 'undefined') {
+        const url = window.location.href;
+        console.log('[OAuth Callback] Original URL:', url);
+
+        // Check for malformed query string with double ?
+        const doubleQuestionMark = url.match(/\?([^?]+)\?(.+)/);
+        if (doubleQuestionMark) {
+          // Fix the URL by replacing second ? with &
+          const fixedUrl = url.replace(/\?([^?]+)\?/, '?$1&');
+          console.log('[OAuth Callback] Fixed malformed URL:', fixedUrl);
+
+          // Parse the fixed URL
+          const urlObj = new URL(fixedUrl);
+          sanitizedParams = urlObj.searchParams as any;
+
+          // Update browser URL without reload
+          window.history.replaceState({}, '', fixedUrl);
+        }
+      }
+
       // Handle the OAuth token response from API
-      const accessToken = searchParams.get('access_token');
-      const tokenType = searchParams.get('token_type');
-      const role = searchParams.get('role');
-      const userId = searchParams.get('user_id');
-      const expiresIn = searchParams.get('expires_in');
-      const error = searchParams.get('error');
-      const errorDescription = searchParams.get('error_description');
+      const accessToken = sanitizedParams.get('access_token');
+      const tokenType = sanitizedParams.get('token_type');
+      const role = sanitizedParams.get('role');
+      const userId = sanitizedParams.get('user_id');
+      const expiresIn = sanitizedParams.get('expires_in');
+      const error = sanitizedParams.get('error');
+      const errorDescription = sanitizedParams.get('error_description');
 
       console.log('[OAuth Callback] Received params:', { accessToken: !!accessToken, tokenType, role, userId, expiresIn });
 
