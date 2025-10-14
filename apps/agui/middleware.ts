@@ -10,6 +10,7 @@ export const config = {
 
 export function middleware(request: NextRequest) {
   const url = request.url;
+  const pathname = request.nextUrl.pathname;
 
   // Check for malformed query string with double ?
   // Handle both raw ? and URL-encoded %3F
@@ -40,7 +41,13 @@ export function middleware(request: NextRequest) {
     console.log('[OAuth Middleware] Original:', url);
     console.log('[OAuth Middleware] Fixed:', fixedUrl);
 
-    // Redirect to the fixed URL
+    // For Next.js data requests (/_next/data/*.json), use rewrite instead of redirect
+    // to avoid breaking the client-side navigation
+    if (pathname.startsWith('/_next/data/')) {
+      return NextResponse.rewrite(new URL(fixedUrl));
+    }
+
+    // For regular page requests, redirect to the fixed URL
     return NextResponse.redirect(new URL(fixedUrl));
   }
 
