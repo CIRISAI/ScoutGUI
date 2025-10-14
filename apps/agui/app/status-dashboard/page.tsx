@@ -5,6 +5,7 @@ import { cirisClient, AuthStore } from "../../lib/ciris-sdk";
 import Link from "next/link";
 import { ProtectedRoute } from "../../components/ProtectedRoute";
 import { useAgent } from "../../contexts/AgentContextHybrid";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   StatusDot,
   SpinnerIcon,
@@ -16,13 +17,17 @@ import {
 export default function DashboardPage() {
   // Get current agent context - this ensures SDK is configured correctly
   const { currentAgent, error: agentError } = useAgent();
+  const { user } = useAuth();
+
+  // Only enable queries when both agent and user are available
+  const queriesEnabled = !!currentAgent && !!user;
 
   // Fetch all necessary data - only when agent is selected
   const { data: health, error: healthError } = useQuery({
     queryKey: ["dashboard-health", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getHealth(),
     refetchInterval: 5000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
     retry: false, // Fail fast
   });
 
@@ -30,7 +35,7 @@ export default function DashboardPage() {
     queryKey: ["dashboard-resources", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getResources(),
     refetchInterval: 5000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   // Cast resources to the actual API response structure
@@ -40,58 +45,58 @@ export default function DashboardPage() {
     queryKey: ["dashboard-services", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getServices(),
     refetchInterval: 10000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   const { data: agentStatus } = useQuery({
     queryKey: ["dashboard-agent", currentAgent?.agent_id],
     queryFn: () => cirisClient.agent.getStatus(),
     refetchInterval: 5000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   const { data: memoryStats } = useQuery({
     queryKey: ["dashboard-memory", currentAgent?.agent_id],
     queryFn: () => cirisClient.memory.getStats(),
     refetchInterval: 30000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
   const { data: status } = useQuery({
     queryKey: ["agent-status", currentAgent?.agent_id],
     queryFn: () => cirisClient.agent.getStatus(),
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
   const { data: runtimeState } = useQuery({
     queryKey: ["runtime-state", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getRuntimeState(),
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
   const { data: telemetryOverview } = useQuery({
     queryKey: ["dashboard-telemetry", currentAgent?.agent_id],
     queryFn: () => cirisClient.telemetry.getOverview(),
     refetchInterval: 30000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   const { data: recentLogs } = useQuery({
     queryKey: ["dashboard-logs", currentAgent?.agent_id],
     queryFn: () => cirisClient.telemetry.getLogs("ERROR", undefined, 5),
     refetchInterval: 10000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   const { data: runtimeStatus } = useQuery({
     queryKey: ["dashboard-runtime", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getRuntimeStatus(),
     refetchInterval: 5000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   const { data: queueStatus } = useQuery({
     queryKey: ["dashboard-queue", currentAgent?.agent_id],
     queryFn: () => cirisClient.system.getProcessingQueueStatus(),
     refetchInterval: 5000,
-    enabled: !!currentAgent,
+    enabled: queriesEnabled,
   });
 
   // Helper functions

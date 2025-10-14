@@ -59,7 +59,7 @@ export default function InteractPage() {
       return result;
     },
     refetchInterval: 2000,
-    enabled: !!currentAgent,
+    enabled: !!currentAgent && !!user,
   });
 
   // Get messages and ensure proper order (oldest to newest)

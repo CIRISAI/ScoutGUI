@@ -38,7 +38,7 @@ export default function CommsPage() {
       return result;
     },
     refetchInterval: 2000, // Refresh every 2 seconds to catch responses
-    enabled: !!currentAgent,
+    enabled: !!currentAgent && !!user,
   });
 
   // Fetch agent status
@@ -46,7 +46,7 @@ export default function CommsPage() {
     queryKey: ['agent-status'],
     queryFn: () => cirisClient.agent.getStatus(),
     refetchInterval: 5000, // Refresh every 5 seconds
-    enabled: !!currentAgent,
+    enabled: !!currentAgent && !!user,
   });
 
   // Send message mutation

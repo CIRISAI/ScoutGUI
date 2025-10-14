@@ -44,7 +44,7 @@ function AccountPageContent() {
   const { data: userInfo, isLoading } = useQuery({
     queryKey: ['user-info'],
     queryFn: () => cirisClient.auth.getMe(),
-    enabled: !!currentAgent,
+    enabled: !!currentAgent && !!user,
   });
 
   // Fetch current user details including OAuth links
