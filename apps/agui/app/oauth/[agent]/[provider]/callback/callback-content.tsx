@@ -24,54 +24,14 @@ function OAuthCallbackContent() {
         console.log('[OAuth Callback] Configuring SDK with baseURL:', baseURL);
         cirisClient.setConfig({ baseURL });
 
-      // Sanitize malformed URL from API (handles double ? in query string)
-      let sanitizedParams = searchParams;
-      if (typeof window !== 'undefined') {
-        const url = window.location.href;
-        console.log('[OAuth Callback] Original URL:', url);
-
-        let fixedUrl = url;
-        let needsFix = false;
-
-        // Check for malformed query string with double ? (raw)
-        const doubleQuestionMark = url.match(/\?([^?]+)\?(.+)/);
-        if (doubleQuestionMark) {
-          fixedUrl = url.replace(/\?([^?]+)\?/, '?$1&');
-          needsFix = true;
-          console.log('[OAuth Callback] Fixed double ? in URL');
-        }
-        // Check for URL-encoded ? (%3F) in query string
-        else if (url.includes('%3F')) {
-          const [baseUrl, queryString] = url.split('?');
-          if (queryString) {
-            // Replace %3F with & in the query string
-            const fixedQuery = queryString.replace(/%3F/g, '&');
-            fixedUrl = `${baseUrl}?${fixedQuery}`;
-            needsFix = true;
-            console.log('[OAuth Callback] Fixed URL-encoded %3F in URL');
-          }
-        }
-
-        if (needsFix) {
-          console.log('[OAuth Callback] Fixed URL:', fixedUrl);
-
-          // Parse the fixed URL
-          const urlObj = new URL(fixedUrl);
-          sanitizedParams = urlObj.searchParams as any;
-
-          // Update browser URL without reload
-          window.history.replaceState({}, '', fixedUrl);
-        }
-      }
-
-      // Handle the OAuth token response from API
-      const accessToken = sanitizedParams.get('access_token');
-      const tokenType = sanitizedParams.get('token_type');
-      const role = sanitizedParams.get('role');
-      const userId = sanitizedParams.get('user_id');
-      const expiresIn = sanitizedParams.get('expires_in');
-      const error = sanitizedParams.get('error');
-      const errorDescription = sanitizedParams.get('error_description');
+        // Handle the OAuth token response from API
+        const accessToken = searchParams.get('access_token');
+        const tokenType = searchParams.get('token_type');
+        const role = searchParams.get('role');
+        const userId = searchParams.get('user_id');
+        const expiresIn = searchParams.get('expires_in');
+        const error = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
 
       console.log('[OAuth Callback] Received params:', { accessToken: !!accessToken, tokenType, role, userId, expiresIn });
 
