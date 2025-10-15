@@ -46,12 +46,20 @@ export class CIRISClient {
   public readonly billing: BillingResource;
 
   constructor(options: CIRISClientOptions = {}) {
+    console.log('[CIRIS SDK] Constructor called with options:', options);
+
     // Determine the default base URL based on environment
     let defaultBaseURL: string;
 
     if (typeof window !== 'undefined') {
       // Client-side
       const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+      console.log('[CIRIS SDK] Constructor - isLocalhost:', isLocalhost);
+      console.log('[CIRIS SDK] Constructor - env vars:', {
+        NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
+        NEXT_PUBLIC_SCOUT_API_URL: process.env.NEXT_PUBLIC_SCOUT_API_URL
+      });
 
       if (isLocalhost) {
         // Development: use environment variable or default
@@ -64,6 +72,10 @@ export class CIRISClient {
       // Server-side: use environment variable or localhost
       defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
     }
+
+    console.log('[CIRIS SDK] Constructor - defaultBaseURL:', defaultBaseURL);
+    console.log('[CIRIS SDK] Constructor - options.baseURL:', options.baseURL);
+    console.log('[CIRIS SDK] Constructor - final baseURL:', options.baseURL || defaultBaseURL);
 
     const transportOptions: TransportOptions = {
       baseURL: options.baseURL || defaultBaseURL,
