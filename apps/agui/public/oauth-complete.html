@@ -72,7 +72,11 @@
           localStorage.setItem('authProvider', provider);
         }
 
-        window.location.href = localStorage.getItem('authReturnUrl') || '/';
+        // Add cache-busting parameter to force fresh page load
+        const returnUrl = localStorage.getItem('authReturnUrl') || '/';
+        const cacheBuster = `_t=${Date.now()}`;
+        const separator = returnUrl.includes('?') ? '&' : '?';
+        window.location.href = `${returnUrl}${separator}${cacheBuster}`;
         localStorage.removeItem('authReturnUrl');
       } else {
         window.location.href = '/login?error=oauth_failed';
