@@ -96,15 +96,15 @@ function AccountPageContent() {
 
       const apiBaseUrl = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
 
-      // Extract agent ID from API base URL (format: https://scoutapi.ciris.ai/api/{agent_id}/v1)
-      const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)\/v1/);
+      // Extract agent ID from API base URL (format: https://scoutapi.ciris.ai/api/{agent_id})
+      const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)/);
       const agentId = agentIdMatch ? agentIdMatch[1] : (currentAgent?.agent_id || 'scout');
 
       // Use agent-specific callback URL for linking
       const redirectUri = encodeURIComponent(`${window.location.origin}/oauth/${agentId}/${provider}/callback`);
 
-      // apiBaseUrl already includes /v1, so just append auth/oauth/{provider}/login
-      const oauthUrl = `${apiBaseUrl}/auth/oauth/${provider}/login`;
+      // apiBaseUrl does NOT include /v1, so we need to add it
+      const oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;
 
       // Redirect to OAuth provider
       window.location.href = `${oauthUrl}?redirect_uri=${redirectUri}`;

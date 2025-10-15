@@ -49,8 +49,8 @@ export default function LoginPage() {
       // Use static HTML callback page
       const callbackUrl = `${window.location.origin}/oauth-complete.html?marketing_opt_in=${marketingOptIn}`;
       const redirectUri = encodeURIComponent(callbackUrl);
-      // apiBaseUrl already includes /v1, so just append auth/oauth/{provider}/login
-      const oauthUrl = `${apiBaseUrl}/auth/oauth/${provider}/login`;
+      // apiBaseUrl does NOT include /v1, so we need to add it
+      const oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;
 
       window.location.href = `${oauthUrl}?redirect_uri=${redirectUri}`;
     } catch (error) {
