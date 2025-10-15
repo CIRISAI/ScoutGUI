@@ -46,28 +46,17 @@ export class CIRISClient {
   public readonly billing: BillingResource;
 
   constructor(options: CIRISClientOptions = {}) {
-    // Determine the default base URL based on environment
-    let defaultBaseURL: string;
-
-    if (typeof window !== 'undefined') {
-      // Client-side
-      const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-      if (isLocalhost) {
-        // Development: use environment variable or default
-        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      } else {
-        // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
-      }
-    } else {
-      // Server-side: use environment variable or localhost
-      defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    }
+    // Use single ternary expression that minifier cannot break
+    // Server-side gets localhost, client-side checks hostname
+    const defaultBaseURL = typeof window === 'undefined'
+      ? 'http://localhost:8080'
+      : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:8080'
+        : 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9');
 
     const finalBaseURL = options.baseURL || defaultBaseURL;
 
-    // Debug log only on client side to avoid server-side errors
+    // Debug log only on client side
     if (typeof window !== 'undefined') {
       console.log('[CIRIS SDK] Initializing with baseURL:', finalBaseURL);
     }
@@ -214,36 +203,8 @@ export class CIRISClient {
   }
 }
 
-// Create a singleton instance with proper defaults
-// This will be reconfigured by SDKConfigManager when agent is selected
-const createDefaultClient = () => {
-  // For browser environments, use environment variable to support separate frontend/backend domains
-  let baseURL: string;
-  if (typeof window !== 'undefined') {
-    // Client-side
-    const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-    if (isLocalhost) {
-      // Development: use environment variable or default
-      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    } else {
-      // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
-    }
-  } else {
-    // Server-side
-    baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-  }
-
-  // Debug log only on client side
-  if (typeof window !== 'undefined') {
-    console.log('[CIRIS SDK] Creating default client with baseURL:', baseURL);
-  }
-
-  return new CIRISClient({ baseURL });
-};
-
-export const cirisClient = createDefaultClient();
+// Create singleton instance - constructor will determine baseURL using minifier-safe ternary
+export const cirisClient = new CIRISClient();
 
 // Export everything for advanced usage
 export * from './types';
