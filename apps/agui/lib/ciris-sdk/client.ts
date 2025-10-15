@@ -48,7 +48,7 @@ export class CIRISClient {
   constructor(options: CIRISClientOptions = {}) {
     // Determine the default base URL based on environment
     let defaultBaseURL: string;
-    
+
     if (typeof window !== 'undefined') {
       // Client-side
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -56,8 +56,9 @@ export class CIRISClient {
         defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       } else {
         // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-        // Note: Do NOT include /v1 in baseURL - resource methods already include it in their paths
-        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+        // Note: Strip /v1 from env var if present - resource methods already include it in their paths
+        const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+        defaultBaseURL = envUrl.replace(/\/v1$/, '');
       }
     } else {
       // Server-side: use environment variable or localhost
@@ -218,8 +219,9 @@ const createDefaultClient = () => {
       baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
     } else {
       // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-      // Note: Do NOT include /v1 in baseURL - resource methods already include it in their paths
-      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+      // Note: Strip /v1 from env var if present - resource methods already include it in their paths
+      const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+      baseURL = envUrl.replace(/\/v1$/, '');
     }
   } else {
     // Server-side
