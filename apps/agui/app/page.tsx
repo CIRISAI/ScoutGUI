@@ -907,26 +907,26 @@ export default function InteractPage() {
 
     useEffect(() => {
       const timers = [
-        setTimeout(() => setAnimationStep(1), 500),    // User message
-        setTimeout(() => setAnimationStep(2), 1500),   // Explanation step 1: Scout gathers context
-        setTimeout(() => setAnimationStep(3), 2500),   // Task 1 header
-        setTimeout(() => setAnimationStep(4), 3000),   // Thought 1 content
-        setTimeout(() => setAnimationStep(5), 3500),   // Explanation step 2: 3 angles
-        setTimeout(() => setAnimationStep(6), 4000),   // CS·DS·E
-        setTimeout(() => setAnimationStep(7), 4500),   // Explanation step 3: Decides what to do
-        setTimeout(() => setAnimationStep(8), 5000),   // SPEAK (action)
-        setTimeout(() => setAnimationStep(9), 5500),   // Explanation step 4: Conscience check
-        setTimeout(() => setAnimationStep(10), 6000),  // PASSED
-        setTimeout(() => setAnimationStep(11), 6500),  // Explanation step 5: Execute
-        setTimeout(() => setAnimationStep(12), 7000),  // SPEAK (executed)
-        setTimeout(() => setAnimationStep(13), 7500),  // Agent response
-        setTimeout(() => setAnimationStep(14), 8500),  // Explanation step 6: Follow-up
-        setTimeout(() => setAnimationStep(15), 9000),  // Task 2 header
-        setTimeout(() => setAnimationStep(16), 9500),  // Thought 2 content
-        setTimeout(() => setAnimationStep(17), 10000), // CS·DS·E (thought 2)
-        setTimeout(() => setAnimationStep(18), 10500), // TASK_COMPLETE (action)
-        setTimeout(() => setAnimationStep(19), 11000), // EXEMPT
-        setTimeout(() => setAnimationStep(20), 11500), // TASK_COMPLETE (executed)
+        setTimeout(() => setAnimationStep(1), 750),    // User message
+        setTimeout(() => setAnimationStep(2), 2250),   // Explanation step 1: Scout gathers context
+        setTimeout(() => setAnimationStep(3), 3750),   // Task 1 header
+        setTimeout(() => setAnimationStep(4), 4500),   // Thought 1 content
+        setTimeout(() => setAnimationStep(5), 5250),   // Explanation step 2: 3 angles
+        setTimeout(() => setAnimationStep(6), 6000),   // CS·DS·E
+        setTimeout(() => setAnimationStep(7), 6750),   // Explanation step 3: Decides what to do
+        setTimeout(() => setAnimationStep(8), 7500),   // SPEAK (action)
+        setTimeout(() => setAnimationStep(9), 8250),   // Explanation step 4: Conscience check
+        setTimeout(() => setAnimationStep(10), 9000),  // PASSED
+        setTimeout(() => setAnimationStep(11), 9750),  // Explanation step 5: Execute
+        setTimeout(() => setAnimationStep(12), 10500), // SPEAK (executed)
+        setTimeout(() => setAnimationStep(13), 11250), // Agent response
+        setTimeout(() => setAnimationStep(14), 12750), // Explanation step 6: Follow-up
+        setTimeout(() => setAnimationStep(15), 13500), // Task 2 header
+        setTimeout(() => setAnimationStep(16), 14250), // Thought 2 content
+        setTimeout(() => setAnimationStep(17), 15000), // CS·DS·E (thought 2)
+        setTimeout(() => setAnimationStep(18), 15750), // TASK_COMPLETE (action)
+        setTimeout(() => setAnimationStep(19), 16500), // EXEMPT
+        setTimeout(() => setAnimationStep(20), 17250), // TASK_COMPLETE (executed)
       ];
       return () => timers.forEach(t => clearTimeout(t));
     }, []);
@@ -945,7 +945,7 @@ export default function InteractPage() {
               className="text-center mb-12"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.9 }}
             >
               <h1 className="text-4xl font-bold text-gray-900 mb-4">Meet Scout</h1>
               <p className="text-xl text-gray-600">
@@ -971,7 +971,7 @@ export default function InteractPage() {
                         className="text-right"
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.6 }}
                       >
                         <div className="inline-block px-4 py-2 rounded bg-blue-500 text-white">
                           How does Scout ensure ethical decision making?
@@ -987,7 +987,7 @@ export default function InteractPage() {
                         className="bg-blue-50 border-l-4 border-blue-500 p-4 text-sm text-gray-700"
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.75 }}
                       >
                         <p className="font-semibold mb-2">🧠 Scout's Decision Process:</p>
                         <ol className="list-decimal list-inside space-y-1">
@@ -996,7 +996,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Scout gathers context from memory graphs
                               </motion.li>
@@ -1005,7 +1005,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Considers the question from 3 angles: <span className="font-semibold">Ethical, Common Sense, and Domain Specific</span>
                               </motion.li>
@@ -1014,7 +1014,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Decides what to do: <span className="font-semibold">speak, use a tool, or defer to an authorized human</span>
                               </motion.li>
@@ -1023,7 +1023,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Checks with its conscience that this aligns with its values and identity
                               </motion.li>
@@ -1032,7 +1032,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Executes the choice and saves results to a <span className="font-semibold">tamper-evident audit log</span>
                               </motion.li>
@@ -1041,7 +1041,7 @@ export default function InteractPage() {
                               <motion.li
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.4 }}
+                                transition={{ duration: 0.6 }}
                               >
                                 Follow-up thoughts ensure the observation, viewed as a task by the agent, is handled completely
                               </motion.li>
@@ -1059,7 +1059,7 @@ export default function InteractPage() {
                         className="ml-4"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.6 }}
                       >
                         <div className="border rounded-lg">
                           <div className="cursor-pointer p-3 bg-blue-500 text-white rounded-t-lg">
@@ -1084,7 +1084,7 @@ export default function InteractPage() {
                                     key={animationStep >= 20 ? "updated-metrics" : "initial-metrics"}
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    transition={{ duration: 0.4 }}
+                                    transition={{ duration: 0.6 }}
                                   >
                                     <div className="flex items-center gap-1">
                                       <span>Carbon:</span>
@@ -1111,7 +1111,7 @@ export default function InteractPage() {
                                     className="text-sm font-medium mb-2"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
+                                    transition={{ duration: 0.6 }}
                                   >
                                     Analyzing the question through my three decision making angles...
                                   </motion.div>
@@ -1125,7 +1125,7 @@ export default function InteractPage() {
                                       title="3 Decision Making Angles"
                                       initial={{ opacity: 0, scale: 0.8 }}
                                       animate={{ opacity: 1, scale: 1 }}
-                                      transition={{ duration: 0.3 }}
+                                      transition={{ duration: 0.45 }}
                                     >
                                       CS·DS·E
                                     </motion.span>
@@ -1141,7 +1141,7 @@ export default function InteractPage() {
                                         className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold"
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={{ duration: 0.45 }}
                                       >
                                         SPEAK
                                       </motion.span>
@@ -1158,7 +1158,7 @@ export default function InteractPage() {
                                         className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-bold"
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={{ duration: 0.45 }}
                                       >
                                         PASSED
                                       </motion.span>
@@ -1175,7 +1175,7 @@ export default function InteractPage() {
                                         className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold"
                                         initial={{ opacity: 0, scale: 0.8 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 0.3 }}
+                                        transition={{ duration: 0.45 }}
                                       >
                                         SPEAK
                                       </motion.span>
@@ -1190,7 +1190,7 @@ export default function InteractPage() {
                                     className="flex gap-3 text-xs text-gray-500 pt-1 border-t"
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
-                                    transition={{ duration: 0.4 }}
+                                    transition={{ duration: 0.6 }}
                                   >
                                     <div className="flex items-center gap-1">
                                       <span>Carbon:</span>
@@ -1215,7 +1215,7 @@ export default function InteractPage() {
                                   className="border border-gray-200 rounded p-2 bg-white space-y-1"
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.4 }}
+                                  transition={{ duration: 0.6 }}
                                 >
                                   <AnimatePresence>
                                     {animationStep >= 16 && (
@@ -1223,7 +1223,7 @@ export default function InteractPage() {
                                         className="text-sm font-medium mb-2"
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        transition={{ duration: 0.4 }}
+                                        transition={{ duration: 0.6 }}
                                       >
                                         Verifying task completion and finalizing...
                                       </motion.div>
@@ -1237,7 +1237,7 @@ export default function InteractPage() {
                                           title="3 Decision Making Angles"
                                           initial={{ opacity: 0, scale: 0.8 }}
                                           animate={{ opacity: 1, scale: 1 }}
-                                          transition={{ duration: 0.3 }}
+                                          transition={{ duration: 0.45 }}
                                         >
                                           CS·DS·E
                                         </motion.span>
@@ -1253,7 +1253,7 @@ export default function InteractPage() {
                                             className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.45 }}
                                           >
                                             TASK_COMPLETE
                                           </motion.span>
@@ -1270,7 +1270,7 @@ export default function InteractPage() {
                                             className="px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded font-bold"
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.45 }}
                                           >
                                             EXEMPT
                                           </motion.span>
@@ -1287,7 +1287,7 @@ export default function InteractPage() {
                                             className="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded font-bold"
                                             initial={{ opacity: 0, scale: 0.8 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.45 }}
                                           >
                                             TASK_COMPLETE
                                           </motion.span>
@@ -1302,7 +1302,7 @@ export default function InteractPage() {
                                         className="flex gap-3 text-xs text-gray-500 pt-1 border-t"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
-                                        transition={{ duration: 0.4 }}
+                                        transition={{ duration: 0.6 }}
                                       >
                                         <div className="flex items-center gap-1">
                                           <span>Carbon:</span>
@@ -1334,7 +1334,7 @@ export default function InteractPage() {
                         className="text-left"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.6 }}
                       >
                         <div className="inline-block px-4 py-2 rounded bg-gray-200">
                           Scout ensures ethical decision making through a multi-layered approach: every thought is processed through three simultaneous perspectives (ethical, common sense, and domain-specific), followed by a conscience check that verifies alignment with core values. All decisions are recorded in a tamper-evident audit log with full transparency.
@@ -1352,7 +1352,7 @@ export default function InteractPage() {
                     className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.75 }}
                   >
                     <h4 className="text-sm font-semibold text-green-900 mb-3">Total Environmental Impact</h4>
                     <div className="grid grid-cols-3 gap-4 text-sm">
@@ -1419,7 +1419,7 @@ export default function InteractPage() {
                   className="bg-white shadow rounded-lg p-6 mt-8"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
+                  transition={{ duration: 0.75, delay: 0.45 }}
                 >
                   <h3 className="text-lg font-semibold mb-3">Environmental Impact Calculations</h3>
                   <div className="text-sm text-gray-600 space-y-3">
