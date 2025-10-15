@@ -56,7 +56,8 @@ export class CIRISClient {
         defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
       } else {
         // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1';
+        // Note: Do NOT include /v1 in baseURL - resource methods already include it in their paths
+        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
       }
     } else {
       // Server-side: use environment variable or localhost
@@ -217,7 +218,8 @@ const createDefaultClient = () => {
       baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
     } else {
       // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
-      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1';
+      // Note: Do NOT include /v1 in baseURL - resource methods already include it in their paths
+      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
     }
   } else {
     // Server-side
