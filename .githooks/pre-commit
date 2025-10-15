@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Pre-commit hook for ScoutGUI
+# Runs type checking, tests, and build validation
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+echo ""
+
+cd apps/agui
+
+# Type checking
+echo "📝 Running type checking..."
+if ! pnpm exec tsc --noEmit; then
+    echo "❌ Type checking failed. Please fix TypeScript errors before committing."
+    exit 1
+fi
+echo "✅ Type checking passed"
+echo ""
+
+# Tests
+echo "🧪 Running tests..."
+if ! pnpm test --passWithNoTests --silent; then
+    echo "❌ Tests failed. Please fix test errors before committing."
+    exit 1
+fi
+echo "✅ Tests passed"
+echo ""
+
+# Build validation
+echo "🏗️  Running build validation..."
+if ! pnpm run pages:build > /dev/null 2>&1; then
+    echo "❌ Build failed. Please fix build errors before committing."
+    exit 1
+fi
+echo "✅ Build passed"
+echo ""
+
+echo "✅ All pre-commit checks passed!"
+exit 0
