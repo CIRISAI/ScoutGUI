@@ -62,7 +62,9 @@ export class CIRISClient {
       }
     } else {
       // Server-side: use environment variable or localhost
-      defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      // Note: Strip /v1 from env var if present - resource methods already include it in their paths
+      const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      defaultBaseURL = envUrl.replace(/\/v1$/, '');
     }
 
     const transportOptions: TransportOptions = {
@@ -225,7 +227,9 @@ const createDefaultClient = () => {
     }
   } else {
     // Server-side
-    baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    // Note: Strip /v1 from env var if present - resource methods already include it in their paths
+    const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    baseURL = envUrl.replace(/\/v1$/, '');
   }
 
   console.log('[CIRIS SDK] Creating default client with baseURL:', baseURL);
