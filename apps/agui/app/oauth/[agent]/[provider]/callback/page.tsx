@@ -45,6 +45,8 @@ export default function OAuthCallbackPage() {
             const role = params.get('role');
             const userId = params.get('user_id');
             const expiresIn = params.get('expires_in');
+            const email = params.get('email');
+            const marketingOptIn = params.get('marketing_opt_in') === 'true';
 
             if (accessToken && tokenType && role && userId) {
               localStorage.setItem('ciris_auth_token', JSON.stringify({
@@ -58,10 +60,12 @@ export default function OAuthCallbackPage() {
 
               localStorage.setItem('ciris_user', JSON.stringify({
                 user_id: userId,
-                username: userId,
+                username: email || userId,
+                email: email || '',
                 role: role,
                 api_role: role,
                 permissions: [],
+                marketing_opt_in: marketingOptIn,
                 created_at: new Date().toISOString(),
                 last_login: new Date().toISOString()
               }));
