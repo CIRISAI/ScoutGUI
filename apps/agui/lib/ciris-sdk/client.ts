@@ -203,8 +203,18 @@ export class CIRISClient {
   }
 }
 
-// Create singleton instance - constructor will determine baseURL using minifier-safe ternary
-export const cirisClient = new CIRISClient();
+// Lazy singleton - only create client when first accessed (avoids SSR window access)
+let _cirisClient: CIRISClient | undefined;
+
+export function getCIRISClient(): CIRISClient {
+  if (!_cirisClient) {
+    _cirisClient = new CIRISClient();
+  }
+  return _cirisClient;
+}
+
+// Export singleton - this is safe because it's only accessed from client components
+export const cirisClient = getCIRISClient();
 
 // Export everything for advanced usage
 export * from './types';
