@@ -41,7 +41,14 @@ ScoutGUI provides a Next.js 15-based frontend for interacting with Scout, featur
    NEXT_PUBLIC_SCOUT_API_URL=https://your-scout-api-url.com
    ```
 
-4. Run development server:
+4. Set up git hooks (recommended):
+   ```bash
+   ./.githooks/setup.sh
+   ```
+
+   This installs pre-commit hooks that run type checking, tests, and build validation before each commit.
+
+5. Run development server:
    ```bash
    pnpm dev
    ```
