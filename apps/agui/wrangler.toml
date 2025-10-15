@@ -19,13 +19,13 @@ pages_build_output_dir = ".vercel/output/static"
 
 # Environment variables
 [vars]
-NEXT_PUBLIC_API_BASE_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1"
-NEXT_PUBLIC_SCOUT_API_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1"
+NEXT_PUBLIC_API_BASE_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9"
+NEXT_PUBLIC_SCOUT_API_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9"
 
 # Environment variables (for production)
 [env.production.vars]
-NEXT_PUBLIC_API_BASE_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1"
-NEXT_PUBLIC_SCOUT_API_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1"
+NEXT_PUBLIC_API_BASE_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9"
+NEXT_PUBLIC_SCOUT_API_URL = "https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9"
 
 # You can set secrets using: wrangler secret put <KEY>
 # For example: wrangler secret put NEXT_PUBLIC_SCOUT_API_URL
