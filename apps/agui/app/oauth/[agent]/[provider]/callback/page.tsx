@@ -2,6 +2,8 @@
 
 import dynamic from 'next/dynamic';
 
+export const runtime = 'edge';
+
 // Disable SSR for the OAuth callback to prevent server-side errors
 // This page needs to run entirely in the browser to access window, localStorage, etc.
 const OAuthCallbackContent = dynamic(() => import('./callback-content'), {
