@@ -51,20 +51,23 @@ export class CIRISClient {
 
     if (typeof window !== 'undefined') {
       // Client-side
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // Development: use environment variable or default
-        defaultBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+      if (isLocalhost) {
+        // Development: use environment variable or default, strip /v1 if present
+        const devUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+        defaultBaseURL = devUrl.replace(/\/v1$/, '');
       } else {
         // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
         // Note: Strip /v1 from env var if present - resource methods already include it in their paths
-        const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
-        defaultBaseURL = envUrl.replace(/\/v1$/, '');
+        const prodUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+        defaultBaseURL = prodUrl.replace(/\/v1$/, '');
       }
     } else {
       // Server-side: use environment variable or localhost
       // Note: Strip /v1 from env var if present - resource methods already include it in their paths
-      const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-      defaultBaseURL = envUrl.replace(/\/v1$/, '');
+      const serverUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      defaultBaseURL = serverUrl.replace(/\/v1$/, '');
     }
 
     const transportOptions: TransportOptions = {
@@ -216,20 +219,23 @@ const createDefaultClient = () => {
   let baseURL: string;
   if (typeof window !== 'undefined') {
     // Client-side
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      // Development: use environment variable or default
-      baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    if (isLocalhost) {
+      // Development: use environment variable or default, strip /v1 if present
+      const devUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+      baseURL = devUrl.replace(/\/v1$/, '');
     } else {
       // Production: use environment variable (ScoutGUI has separate frontend/backend domains)
       // Note: Strip /v1 from env var if present - resource methods already include it in their paths
-      const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
-      baseURL = envUrl.replace(/\/v1$/, '');
+      const prodUrl = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_SCOUT_API_URL || 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9';
+      baseURL = prodUrl.replace(/\/v1$/, '');
     }
   } else {
     // Server-side
     // Note: Strip /v1 from env var if present - resource methods already include it in their paths
-    const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
-    baseURL = envUrl.replace(/\/v1$/, '');
+    const serverUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+    baseURL = serverUrl.replace(/\/v1$/, '');
   }
 
   console.log('[CIRIS SDK] Creating default client with baseURL:', baseURL);
