@@ -213,8 +213,12 @@ export function getCIRISClient(): CIRISClient {
   return _cirisClient;
 }
 
-// Export singleton - this is safe because it's only accessed from client components
-export const cirisClient = getCIRISClient();
+// Export lazy singleton via getter to avoid SSR instantiation
+export const cirisClient = new Proxy({} as CIRISClient, {
+  get(_, prop) {
+    return getCIRISClient()[prop as keyof CIRISClient];
+  }
+});
 
 // Export everything for advanced usage
 export * from './types';

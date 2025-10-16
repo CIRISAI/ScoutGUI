@@ -54,6 +54,11 @@ export function detectDeploymentMode(): DeploymentMode {
  * Get the API base URL for the current deployment mode
  */
 export function getApiBaseUrl(agentId?: string): string {
+  if (typeof window === 'undefined') {
+    // During SSR, return empty string
+    return '';
+  }
+
   const { mode, agentId: detectedAgentId, apiBase } = detectDeploymentMode();
 
   if (mode === 'standalone') {
@@ -69,6 +74,11 @@ export function getApiBaseUrl(agentId?: string): string {
  * Get the full API URL for a specific endpoint
  */
 export function getApiUrl(endpoint: string, agentId?: string): string {
+  if (typeof window === 'undefined') {
+    // During SSR, return the endpoint as-is
+    return endpoint;
+  }
+
   const { mode, agentId: detectedAgentId } = detectDeploymentMode();
 
   // Remove leading slash if present
