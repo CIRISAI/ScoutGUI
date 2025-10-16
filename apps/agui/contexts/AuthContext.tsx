@@ -30,11 +30,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check auth status on mount
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     try {
       const restored = sdkConfigManager.restoreConfiguration();
       if (restored) {
         sdkConfigManager.configure(restored.agentId, restored.authToken);
-      } else if (typeof window !== 'undefined') {
+      } else {
         const storedAgentId = localStorage.getItem('selectedAgentId') || 'scout';
         sdkConfigManager.configure(storedAgentId);
       }
