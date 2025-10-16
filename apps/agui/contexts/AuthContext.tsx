@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(user);
       toast.success(`Welcome, ${user.username || user.user_id}!`);
-      router.push('/');
+      router.push('/interact');
     } catch (error: any) {
       toast.error(error.message || 'Login failed');
       throw error;
