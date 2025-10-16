@@ -97,7 +97,9 @@ class SDKConfigManager {
   clear(): void {
     this.currentConfig = null;
     // Clear stored configurations
-    localStorage.removeItem('sdk_config');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sdk_config');
+    }
     this.log('SDK configuration cleared');
   }
 
@@ -167,6 +169,11 @@ class SDKConfigManager {
       return this.normaliseBaseURL(envBase);
     }
 
+    if (typeof window === 'undefined') {
+      // During SSR, return a safe default
+      return this.normaliseBaseURL(cirisClient.getBaseURL());
+    }
+
     if (mode === 'managed') {
       return this.normaliseBaseURL(`${window.location.origin}/api/${agentId}`);
     }
@@ -209,6 +216,10 @@ class SDKConfigManager {
    * Restore configuration from storage
    */
   restoreConfiguration(): SDKConfig | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
     const stored = localStorage.getItem('sdk_config');
     if (!stored) return null;
 
