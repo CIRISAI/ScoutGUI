@@ -30,6 +30,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check auth status on mount
   useEffect(() => {
+    try {
+      const restored = sdkConfigManager.restoreConfiguration();
+      if (restored) {
+        sdkConfigManager.configure(restored.agentId, restored.authToken);
+      } else if (typeof window !== 'undefined') {
+        const storedAgentId = localStorage.getItem('selectedAgentId') || 'scout';
+        sdkConfigManager.configure(storedAgentId);
+      }
+    } catch (error) {
+      console.error('Failed to initialize SDK configuration:', error);
+    }
+
     // Skip auth check on login page and manager pages
     const pathname = window.location.pathname;
     if (pathname === '/login' || pathname.startsWith('/manager')) {
@@ -90,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await cirisClient.logout();
       setUser(null);
+      sdkConfigManager.clear();
       toast.success('Logged out successfully');
       router.push('/login');
     } catch (error) {
@@ -112,7 +125,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const setToken = useCallback((token: string) => {
-    cirisClient.setConfig({ authToken: token });
+    let agentId = sdkConfigManager.getCurrentConfig()?.agentId;
+    if (!agentId && typeof window !== 'undefined') {
+      agentId = localStorage.getItem('selectedAgentId') || 'scout';
+    }
+    sdkConfigManager.configure(agentId || 'scout', token);
   }, []);
 
   const isManagerAuthenticated = useCallback(() => {

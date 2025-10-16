@@ -52,7 +52,7 @@
           created_at: Date.now()
         }));
 
-        localStorage.setItem('ciris_user', JSON.stringify({
+        localStorage.setItem('ciris_auth_user', JSON.stringify({
           user_id: userId,
           username: email || userId,
           email: email || '',
@@ -64,10 +64,9 @@
           last_login: new Date().toISOString()
         }));
 
-        if (agent) {
-          localStorage.setItem('selectedAgentId', agent);
-          localStorage.setItem('selectedAgentName', agent.charAt(0).toUpperCase() + agent.slice(1));
-        }
+        const effectiveAgent = agent || 'scout';
+        localStorage.setItem('selectedAgentId', effectiveAgent);
+        localStorage.setItem('selectedAgentName', effectiveAgent.charAt(0).toUpperCase() + effectiveAgent.slice(1));
         if (provider) {
           localStorage.setItem('authProvider', provider);
         }

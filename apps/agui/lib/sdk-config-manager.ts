@@ -32,20 +32,7 @@ class SDKConfigManager {
     const { mode } = detectDeploymentMode();
 
     // Determine the correct base URL
-    let baseURL: string;
-    if (mode === 'managed') {
-      // In managed mode, use /api/{agent_id} path (nginx adds /v1)
-      baseURL = `${window.location.origin}/api/${agentId}`;
-    } else {
-      // In standalone mode, check if we have a stored API URL
-      const storedApiUrl = localStorage.getItem(`agent_${agentId}_api_url`);
-      if (storedApiUrl) {
-        baseURL = storedApiUrl;
-      } else {
-        // Default to current origin
-        baseURL = window.location.origin;
-      }
-    }
+    const baseURL = this.resolveBaseURL(agentId, mode);
 
     // If auth token not provided, try to get from AuthStore
     if (!authToken) {
@@ -74,14 +61,7 @@ class SDKConfigManager {
     const { mode } = detectDeploymentMode();
 
     // During OAuth callback, we need to be extra careful about the base URL
-    let baseURL: string;
-    if (mode === 'managed') {
-      // Always use the proxied path in managed mode (nginx adds /v1)
-      baseURL = `${window.location.origin}/api/${agentId}`;
-    } else {
-      // In standalone, use the origin
-      baseURL = window.location.origin;
-    }
+    const baseURL = this.resolveBaseURL(agentId, mode);
 
     const config: SDKConfig = {
       baseURL,
@@ -92,9 +72,6 @@ class SDKConfigManager {
 
     // Always apply during OAuth callback
     this.applyConfiguration(config);
-
-    // Store the configuration for future use
-    this.storeConfiguration(config);
 
     return config;
   }
@@ -139,6 +116,9 @@ class SDKConfigManager {
     // Update current config
     this.currentConfig = config;
 
+    // Persist configuration for future sessions
+    this.storeConfiguration(config);
+
     this.log('SDK configured successfully');
   }
 
@@ -160,6 +140,9 @@ class SDKConfigManager {
    * Store configuration for persistence
    */
   private storeConfiguration(config: SDKConfig): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
     // Don't store auth token in localStorage for security
     const configToStore = {
       baseURL: config.baseURL,
@@ -173,6 +156,53 @@ class SDKConfigManager {
     if (config.mode === 'standalone' && config.baseURL !== window.location.origin) {
       localStorage.setItem(`agent_${config.agentId}_api_url`, config.baseURL);
     }
+  }
+
+  /**
+   * Resolve the API base URL with environment overrides
+   */
+  private resolveBaseURL(agentId: string, mode: 'standalone' | 'managed'): string {
+    const envBase = this.getEnvConfiguredBaseURL();
+    if (envBase) {
+      return this.normaliseBaseURL(envBase);
+    }
+
+    if (mode === 'managed') {
+      return this.normaliseBaseURL(`${window.location.origin}/api/${agentId}`);
+    }
+
+    const storedApiUrl = localStorage.getItem(`agent_${agentId}_api_url`);
+    if (storedApiUrl) {
+      return this.normaliseBaseURL(storedApiUrl);
+    }
+
+    return this.normaliseBaseURL(cirisClient.getBaseURL());
+  }
+
+  /**
+   * Pull base URL from public environment variables and normalise it
+   */
+  private getEnvConfiguredBaseURL(): string | null {
+    const fromEnv = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!fromEnv) {
+      return null;
+    }
+
+    const trimmed = fromEnv.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    return trimmed;
+  }
+
+  /**
+   * Normalise base URL so transport appends resource paths correctly
+   */
+  private normaliseBaseURL(baseURL: string): string {
+    const safe = baseURL || '';
+    const withoutTrailingSlash = safe.replace(/\/+$/, '');
+    return withoutTrailingSlash.replace(/\/v1$/, '');
   }
 
   /**
