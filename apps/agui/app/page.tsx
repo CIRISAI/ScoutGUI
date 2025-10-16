@@ -901,35 +901,40 @@ export default function InteractPage() {
     }
   }, [timeline]);
 
+  // Animation state for demo (always declared, only used when !user)
+  const [animationStep, setAnimationStep] = useState(0);
+
+  // Animation effect for unauthenticated demo
+  useEffect(() => {
+    if (user) return; // Skip if authenticated
+
+    const timers = [
+      setTimeout(() => setAnimationStep(1), 750),    // User message
+      setTimeout(() => setAnimationStep(2), 2250),   // Explanation step 1: Scout gathers context
+      setTimeout(() => setAnimationStep(3), 3750),   // Task 1 header
+      setTimeout(() => setAnimationStep(4), 4500),   // Thought 1 content
+      setTimeout(() => setAnimationStep(5), 5250),   // Explanation step 2: 3 angles
+      setTimeout(() => setAnimationStep(6), 6000),   // CS·DS·E
+      setTimeout(() => setAnimationStep(7), 6750),   // Explanation step 3: Decides what to do
+      setTimeout(() => setAnimationStep(8), 7500),   // SPEAK (action)
+      setTimeout(() => setAnimationStep(9), 8250),   // Explanation step 4: Conscience check
+      setTimeout(() => setAnimationStep(10), 9000),  // PASSED
+      setTimeout(() => setAnimationStep(11), 9750),  // Explanation step 5: Execute
+      setTimeout(() => setAnimationStep(12), 10500), // SPEAK (executed)
+      setTimeout(() => setAnimationStep(13), 11250), // Agent response
+      setTimeout(() => setAnimationStep(14), 12750), // Explanation step 6: Follow-up
+      setTimeout(() => setAnimationStep(15), 13500), // Task 2 header
+      setTimeout(() => setAnimationStep(16), 14250), // Thought 2 content
+      setTimeout(() => setAnimationStep(17), 15000), // CS·DS·E (thought 2)
+      setTimeout(() => setAnimationStep(18), 15750), // TASK_COMPLETE (action)
+      setTimeout(() => setAnimationStep(19), 16500), // EXEMPT
+      setTimeout(() => setAnimationStep(20), 17250), // TASK_COMPLETE (executed)
+    ];
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [user]);
+
   // Demo landing page for unauthenticated users
   if (!user) {
-    const [animationStep, setAnimationStep] = useState(0);
-
-    useEffect(() => {
-      const timers = [
-        setTimeout(() => setAnimationStep(1), 750),    // User message
-        setTimeout(() => setAnimationStep(2), 2250),   // Explanation step 1: Scout gathers context
-        setTimeout(() => setAnimationStep(3), 3750),   // Task 1 header
-        setTimeout(() => setAnimationStep(4), 4500),   // Thought 1 content
-        setTimeout(() => setAnimationStep(5), 5250),   // Explanation step 2: 3 angles
-        setTimeout(() => setAnimationStep(6), 6000),   // CS·DS·E
-        setTimeout(() => setAnimationStep(7), 6750),   // Explanation step 3: Decides what to do
-        setTimeout(() => setAnimationStep(8), 7500),   // SPEAK (action)
-        setTimeout(() => setAnimationStep(9), 8250),   // Explanation step 4: Conscience check
-        setTimeout(() => setAnimationStep(10), 9000),  // PASSED
-        setTimeout(() => setAnimationStep(11), 9750),  // Explanation step 5: Execute
-        setTimeout(() => setAnimationStep(12), 10500), // SPEAK (executed)
-        setTimeout(() => setAnimationStep(13), 11250), // Agent response
-        setTimeout(() => setAnimationStep(14), 12750), // Explanation step 6: Follow-up
-        setTimeout(() => setAnimationStep(15), 13500), // Task 2 header
-        setTimeout(() => setAnimationStep(16), 14250), // Thought 2 content
-        setTimeout(() => setAnimationStep(17), 15000), // CS·DS·E (thought 2)
-        setTimeout(() => setAnimationStep(18), 15750), // TASK_COMPLETE (action)
-        setTimeout(() => setAnimationStep(19), 16500), // EXEMPT
-        setTimeout(() => setAnimationStep(20), 17250), // TASK_COMPLETE (executed)
-      ];
-      return () => timers.forEach(t => clearTimeout(t));
-    }, []);
 
     return (
       <>
