@@ -486,8 +486,8 @@ function TransactionHistory({ client }: { client: CIRISClient }) {
     });
   };
 
-  const formatAmount = (amountMinor: number) => {
-    return (Math.abs(amountMinor) / 100).toFixed(2);
+  const formatCredits = (amount: number) => {
+    return Math.abs(amount);
   };
 
   if (loading && transactions.length === 0) {
@@ -539,8 +539,8 @@ function TransactionHistory({ client }: { client: CIRISClient }) {
         <div className="space-y-2">
           {transactions.map((txn) => {
             const isCharge = txn.type === 'charge';
-            const amountDollars = formatAmount(txn.amount_minor);
-            const balanceDollars = (txn.balance_after / 100).toFixed(2);
+            const credits = formatCredits(txn.amount_minor);
+            const balance = txn.balance_after;
 
             return (
               <div
@@ -577,10 +577,10 @@ function TransactionHistory({ client }: { client: CIRISClient }) {
                         isCharge ? 'text-red-600' : 'text-green-600'
                       }`}
                     >
-                      {isCharge ? '-' : '+'}${amountDollars}
+                      {isCharge ? '-' : '+'}{credits} {credits === 1 ? 'credit' : 'credits'}
                     </div>
                     <div className="text-xs text-gray-600">
-                      Balance: ${balanceDollars}
+                      Balance: {balance} {balance === 1 ? 'credit' : 'credits'}
                     </div>
                   </div>
                 </div>
