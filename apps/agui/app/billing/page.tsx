@@ -20,6 +20,24 @@ interface CreditStatus {
   };
 }
 
+interface Transaction {
+  transaction_id: string;
+  type: 'charge' | 'credit';
+  amount_minor: number;
+  currency: string;
+  description: string;
+  created_at: string;
+  balance_after: number;
+  metadata?: {
+    agent_id?: string;
+    channel?: string;
+    thought_id?: string;
+    [key: string]: any;
+  };
+  transaction_type?: string;
+  external_transaction_id?: string;
+}
+
 interface PurchaseResponse {
   payment_id: string;
   client_secret: string;
@@ -422,6 +440,171 @@ function PurchaseModal({
   );
 }
 
+// Transaction History Component
+function TransactionHistory({ client }: { client: CIRISClient }) {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadTransactions = async (offset: number = 0) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await client.billing.getTransactions({ limit: 20, offset });
+
+      if (offset === 0) {
+        setTransactions(data.transactions);
+      } else {
+        setTransactions(prev => [...prev, ...data.transactions]);
+      }
+
+      setHasMore(data.has_more);
+      setTotalCount(data.total_count);
+    } catch (err) {
+      console.error('Failed to load transactions:', err);
+      setError('Failed to load transaction history');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const formatAmount = (amountMinor: number) => {
+    return (Math.abs(amountMinor) / 100).toFixed(2);
+  };
+
+  if (loading && transactions.length === 0) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Transaction History</h2>
+        <div className="animate-pulse space-y-3">
+          <div className="h-12 bg-gray-200 rounded"></div>
+          <div className="h-12 bg-gray-200 rounded"></div>
+          <div className="h-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && transactions.length === 0) {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Transaction History</h2>
+        <div className="text-center py-8">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => loadTransactions()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900">Transaction History</h2>
+        {totalCount > 0 && (
+          <span className="text-sm text-gray-600">{totalCount} total transactions</span>
+        )}
+      </div>
+
+      {transactions.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <div className="text-4xl mb-2">📋</div>
+          <p>No transactions yet</p>
+          <p className="text-sm mt-1">Your purchase and usage history will appear here</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {transactions.map((txn) => {
+            const isCharge = txn.type === 'charge';
+            const amountDollars = formatAmount(txn.amount_minor);
+            const balanceDollars = (txn.balance_after / 100).toFixed(2);
+
+            return (
+              <div
+                key={txn.transaction_id}
+                className={`border rounded-lg p-4 ${
+                  isCharge ? 'border-red-100 bg-red-50' : 'border-green-100 bg-green-50'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-medium text-gray-900">
+                        {txn.description}
+                      </span>
+                      {txn.metadata?.agent_id && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+                          {txn.metadata.agent_id}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {formatDate(txn.created_at)}
+                    </div>
+                    {txn.external_transaction_id && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Payment ID: {txn.external_transaction_id.slice(0, 20)}...
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-right">
+                    <div
+                      className={`text-lg font-bold ${
+                        isCharge ? 'text-red-600' : 'text-green-600'
+                      }`}
+                    >
+                      {isCharge ? '-' : '+'}${amountDollars}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Balance: ${balanceDollars}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {hasMore && (
+            <div className="text-center pt-4">
+              <button
+                onClick={() => loadTransactions(transactions.length)}
+                disabled={loading}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? 'Loading...' : 'Load More'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Main Billing Page
 export default function BillingPage() {
   const [credits, setCredits] = useState<CreditStatus | null>(null);
@@ -542,6 +725,9 @@ export default function BillingPage() {
                 </div>
               </div>
             )}
+
+            {/* Transaction History */}
+            <TransactionHistory client={client} />
 
             {/* Information */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

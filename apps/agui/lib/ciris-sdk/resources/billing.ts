@@ -46,6 +46,35 @@ export interface PurchaseStatusResponse {
   balance_after: number;
 }
 
+export interface Transaction {
+  transaction_id: string;
+  type: 'charge' | 'credit';
+  amount_minor: number;
+  currency: string;
+  description: string;
+  created_at: string;
+  balance_after: number;
+  metadata?: {
+    agent_id?: string;
+    channel?: string;
+    thought_id?: string;
+    [key: string]: any;
+  };
+  transaction_type?: string;
+  external_transaction_id?: string;
+}
+
+export interface TransactionListResponse {
+  transactions: Transaction[];
+  total_count: number;
+  has_more: boolean;
+}
+
+export interface GetTransactionsRequest {
+  limit?: number;
+  offset?: number;
+}
+
 export class BillingResource extends BaseResource {
   /**
    * Get current user's credit status
@@ -76,5 +105,21 @@ export class BillingResource extends BaseResource {
     return this.transport.get<PurchaseStatusResponse>(
       `/v1/api/billing/purchase/status/${paymentId}`
     );
+  }
+
+  /**
+   * Get transaction history for the current user
+   * @param request Optional limit and offset for pagination
+   * @returns List of transactions with pagination info
+   */
+  async getTransactions(request?: GetTransactionsRequest): Promise<TransactionListResponse> {
+    const params = new URLSearchParams();
+    if (request?.limit) params.append('limit', request.limit.toString());
+    if (request?.offset) params.append('offset', request.offset.toString());
+
+    const queryString = params.toString();
+    const url = `/v1/api/billing/transactions${queryString ? `?${queryString}` : ''}`;
+
+    return this.transport.get<TransactionListResponse>(url);
   }
 }
