@@ -76,13 +76,27 @@ function CreditBalance({ credits, onPurchaseClick }: {
     );
   }
 
+  // Convert credits_remaining (in cents) to uses
+  const getCreditUses = (creditsMinor: number): number => {
+    if (!credits.purchase_options) return 0;
+    const centsPerUse = credits.purchase_options.price_minor / credits.purchase_options.uses;
+    return Math.floor(creditsMinor / centsPerUse);
+  };
+
+  const getCreditDollars = (creditsMinor: number): string => {
+    return (creditsMinor / 100).toFixed(2);
+  };
+
+  const paidUses = getCreditUses(credits.credits_remaining);
+  const paidDollars = getCreditDollars(credits.credits_remaining);
+
   const isFree = credits.free_uses_remaining > 0;
-  const isLow = credits.credits_remaining < 5 && credits.free_uses_remaining === 0;
+  const isLow = paidUses < 5 && credits.free_uses_remaining === 0;
   const isEmpty = !credits.has_credit;
 
   let icon = '💵';
   let colorClass = 'text-blue-600 bg-blue-50 border-blue-200';
-  let message = `${credits.credits_remaining} credits remaining`;
+  let message = `$${paidDollars} (${paidUses} ${paidUses === 1 ? 'use' : 'uses'}) remaining`;
 
   if (isFree) {
     icon = '🎁';
@@ -95,7 +109,7 @@ function CreditBalance({ credits, onPurchaseClick }: {
   } else if (isLow) {
     icon = '⚠️';
     colorClass = 'text-orange-600 bg-orange-50 border-orange-200';
-    message = `${credits.credits_remaining} credits remaining`;
+    message = `$${paidDollars} (${paidUses} ${paidUses === 1 ? 'use' : 'uses'}) remaining`;
   }
 
   return (
@@ -254,6 +268,7 @@ function PurchaseModal({
   const [purchaseInfo, setPurchaseInfo] = useState<PurchaseResponse | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [creditsAdded, setCreditsAdded] = useState<number>(0);
+  const [usesAdded, setUsesAdded] = useState<number>(0);
 
   const initiatePurchase = async () => {
     setStep('payment');
@@ -283,8 +298,18 @@ function PurchaseModal({
         const status = await client.billing.getPurchaseStatus(paymentId);
 
         if (status.status === 'succeeded') {
-          // Success - credits added
+          // Success - credits added (convert from cents to uses)
           setCreditsAdded(status.credits_added);
+
+          // Convert credits (in cents) to uses
+          if (credits?.purchase_options) {
+            const centsPerUse = credits.purchase_options.price_minor / credits.purchase_options.uses;
+            const uses = Math.floor(status.credits_added / centsPerUse);
+            setUsesAdded(uses);
+          } else {
+            setUsesAdded(0);
+          }
+
           setStep('success');
           setTimeout(() => {
             onSuccess();
@@ -403,7 +428,10 @@ function PurchaseModal({
             <div className="text-6xl mb-4">✓</div>
             <h3 className="text-2xl font-bold text-green-600 mb-2">Purchase Successful!</h3>
             <p className="text-gray-700">
-              {creditsAdded} {creditsAdded === 1 ? 'use' : 'uses'} added to your account
+              {usesAdded} {usesAdded === 1 ? 'use' : 'uses'} added to your account
+            </p>
+            <p className="text-gray-500 text-sm mt-1">
+              ${(creditsAdded / 100).toFixed(2)}
             </p>
           </div>
         )}
@@ -695,7 +723,15 @@ export default function BillingPage() {
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-sm text-gray-600">Paid Credits</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {credits.credits_remaining}
+                    {(() => {
+                      if (!credits.purchase_options) return '0';
+                      const centsPerUse = credits.purchase_options.price_minor / credits.purchase_options.uses;
+                      const uses = Math.floor(credits.credits_remaining / centsPerUse);
+                      return `${uses} ${uses === 1 ? 'use' : 'uses'}`;
+                    })()}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    ${(credits.credits_remaining / 100).toFixed(2)}
                   </p>
                 </div>
               </div>
