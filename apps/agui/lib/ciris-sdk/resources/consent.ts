@@ -110,6 +110,30 @@ export interface ConsentCategoriesResponse {
   categories: Record<string, ConsentCategoryInfo>;
 }
 
+// DSAR Export types
+export interface DSARExportRequest {
+  request_type: 'full' | 'consent_only' | 'impact_only' | 'audit_only';
+}
+
+export interface DSARExportResponse {
+  request_id: string;
+  user_id: string;
+  request_type: string;
+  status: 'completed';
+  export_data: {
+    consent?: ConsentStatus;
+    impact?: ConsentImpactReport;
+    audit_trail?: ConsentAuditEntry[];
+  };
+}
+
+export interface DSARStatusResponse {
+  request_id: string;
+  user_id: string;
+  status: 'completed';
+  message: string;
+}
+
 /**
  * Consent Management Resource
  * 
@@ -330,9 +354,9 @@ export class ConsentResource extends BaseResource {
 
   /**
    * Helper: Poll for partnership decision
-   * 
+   *
    * Polls every 5 seconds until partnership is accepted/rejected.
-   * 
+   *
    * @param onStatusChange - Callback for status changes
    * @param maxAttempts - Maximum polling attempts (default: 60 = 5 minutes)
    * @returns Final partnership status
@@ -342,24 +366,76 @@ export class ConsentResource extends BaseResource {
     maxAttempts: number = 60
   ): Promise<PartnershipStatus> {
     let attempts = 0;
-    
+
     while (attempts < maxAttempts) {
       const status = await this.getPartnershipStatus();
-      
+
       if (onStatusChange) {
         onStatusChange(status);
       }
-      
+
       if (status.partnership_status !== 'pending') {
         return status;
       }
-      
+
       // Wait 5 seconds before next poll
       await new Promise(resolve => setTimeout(resolve, 5000));
       attempts++;
     }
-    
+
     // Return final status after max attempts
     return this.getPartnershipStatus();
+  }
+
+  /**
+   * Initiate DSAR export for consent data
+   *
+   * Immediately returns complete export data including consent status,
+   * impact metrics, and audit trail based on request type.
+   *
+   * @param requestType - Type of export: full, consent_only, impact_only, or audit_only
+   * @returns Complete export data with request ID
+   */
+  async initiateDSARExport(requestType: string = 'full'): Promise<DSARExportResponse> {
+    return this.transport.post<DSARExportResponse>('/v1/consent/dsar/initiate', {
+      request_type: requestType
+    });
+  }
+
+  /**
+   * Check status of DSAR export request
+   *
+   * @param requestId - DSAR request ID from initiate call
+   * @returns Status information
+   */
+  async getDSARStatus(requestId: string): Promise<DSARStatusResponse> {
+    return this.transport.get<DSARStatusResponse>(`/v1/consent/dsar/status/${requestId}`);
+  }
+
+  /**
+   * Helper: Download consent data as JSON file
+   *
+   * Initiates export and automatically downloads the data as a JSON file.
+   *
+   * @param requestType - Type of export (default: full)
+   * @returns Request ID of completed export
+   */
+  async downloadConsentData(requestType: string = 'full'): Promise<string> {
+    const response = await this.initiateDSARExport(requestType);
+
+    // Create and download JSON file
+    const blob = new Blob([JSON.stringify(response.export_data, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ciris-consent-export-${response.request_id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    return response.request_id;
   }
 }

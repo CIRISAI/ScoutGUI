@@ -19,6 +19,13 @@ function PrivacyPageContent() {
     details: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [exportType, setExportType] = useState<string>('full');
+  const [exporting, setExporting] = useState(false);
+  const [exportComplete, setExportComplete] = useState(false);
+  const [lastExportId, setLastExportId] = useState<string | null>(null);
+  const [showDeletionConfirm, setShowDeletionConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [decayStatus, setDecayStatus] = useState<any>(null);
 
   // Load existing DSAR requests if user is admin
   useEffect(() => {
@@ -37,6 +44,41 @@ function PrivacyPageContent() {
       // Don't alert here as this is just for admin visibility
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    setExporting(true);
+    setExportComplete(false);
+
+    try {
+      const requestId = await cirisClient.consent.downloadConsentData(exportType);
+      setLastExportId(requestId);
+      setExportComplete(true);
+      setTimeout(() => setExportComplete(false), 5000);
+    } catch (error: any) {
+      console.error("Failed to export consent data:", error);
+      const errorMessage = extractErrorMessage(error);
+      alert(`Failed to export data: ${errorMessage}`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleRequestDeletion = async () => {
+    setDeleting(true);
+
+    try {
+      const decay = await cirisClient.consent.revokeConsent("User requested data deletion via Privacy & Data page");
+      setDecayStatus(decay);
+      setShowDeletionConfirm(false);
+      alert("Consent revoked successfully. Decay protocol initiated (90-day gradual anonymization).");
+    } catch (error: any) {
+      console.error("Failed to revoke consent:", error);
+      const errorMessage = extractErrorMessage(error);
+      alert(`Failed to revoke consent: ${errorMessage}`);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -134,7 +176,7 @@ function PrivacyPageContent() {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Privacy & Data Rights</h2>
             <p className="text-gray-600 mb-4">
               Under GDPR and other privacy regulations, you have specific rights regarding your personal data.
-              Use the Data Subject Access Request (DSAR) system to exercise these rights.
+              You can download your consent data instantly or submit a full DSAR request for complete data access.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -159,6 +201,209 @@ function PrivacyPageContent() {
                 <p className="text-sm text-gray-600">Request correction of inaccurate data</p>
               </div>
             </div>
+          </div>
+
+          {/* Consent Data Download */}
+          <div className="mb-8 bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">📥 Download Your Consent Data</h2>
+            <p className="text-gray-600 mb-6">
+              Instantly download your consent status, impact metrics, and consent history as a JSON file.
+              This is the fastest way to get your consent-related data.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Choose what to download:
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="full"
+                      checked={exportType === 'full'}
+                      onChange={(e) => setExportType(e.target.value)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">Complete Data Export (Recommended)</div>
+                      <div className="text-xs text-gray-600">All consent data, impact metrics, and complete audit history</div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="consent_only"
+                      checked={exportType === 'consent_only'}
+                      onChange={(e) => setExportType(e.target.value)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">Consent Data Only</div>
+                      <div className="text-xs text-gray-600">Your current consent status and categories</div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="impact_only"
+                      checked={exportType === 'impact_only'}
+                      onChange={(e) => setExportType(e.target.value)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">Impact Metrics</div>
+                      <div className="text-xs text-gray-600">Your contribution statistics</div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="radio"
+                      name="exportType"
+                      value="audit_only"
+                      checked={exportType === 'audit_only'}
+                      onChange={(e) => setExportType(e.target.value)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                    />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-900">Audit Trail</div>
+                      <div className="text-xs text-gray-600">Complete consent change history</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <button
+                onClick={handleExportData}
+                disabled={exporting}
+                className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {exporting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Exporting...
+                  </>
+                ) : (
+                  'Download Data'
+                )}
+              </button>
+
+              {exportComplete && lastExportId && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="text-2xl mr-3">✅</div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-green-900 mb-1">Data Export Complete!</h4>
+                      <p className="text-xs text-green-700 mb-2">Request ID: {lastExportId}</p>
+                      <p className="text-xs text-green-600">
+                        Your data has been downloaded as <code className="bg-green-100 px-1 py-0.5 rounded">ciris-consent-export-{lastExportId}.json</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Data Deletion with Decay Protocol */}
+          <div className="mb-8 bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              🗑️ Request Data Deletion
+            </h2>
+            <p className="text-gray-600 mb-4">
+              You can request deletion of your consent data at any time. CIRIS uses a gradual 90-day decay protocol
+              to ensure safe anonymization while retaining safety patterns.
+            </p>
+
+            {!decayStatus ? (
+              <>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                  <h4 className="text-sm font-medium text-yellow-900 mb-2">⚠️ Before You Delete</h4>
+                  <ul className="text-sm text-yellow-800 space-y-1 mb-3">
+                    <li>• Download your data first (using the section above)</li>
+                    <li>• Deletion initiates a 90-day decay protocol</li>
+                    <li>• Your identity is immediately severed</li>
+                    <li>• Behavioral patterns are gradually anonymized</li>
+                    <li>• Safety patterns may be retained (anonymized)</li>
+                  </ul>
+                </div>
+
+                {!showDeletionConfirm ? (
+                  <button
+                    onClick={() => setShowDeletionConfirm(true)}
+                    className="w-full bg-red-600 text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-red-700"
+                  >
+                    Request Data Deletion
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-red-900 mb-2">⚠️ Final Confirmation</h4>
+                      <p className="text-sm text-red-800 mb-3">
+                        This will revoke your consent and initiate the decay protocol. Are you absolutely sure?
+                      </p>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={handleRequestDeletion}
+                          disabled={deleting}
+                          className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:bg-gray-400"
+                        >
+                          {deleting ? 'Processing...' : 'Yes, Delete My Data'}
+                        </button>
+                        <button
+                          onClick={() => setShowDeletionConfirm(false)}
+                          disabled={deleting}
+                          className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                <h4 className="text-lg font-medium text-purple-900 mb-3">Decay Protocol Initiated</h4>
+                <div className="space-y-3 text-sm text-purple-800">
+                  <div className="flex items-center justify-between py-2 border-b border-purple-200">
+                    <span>Decay Started:</span>
+                    <span className="font-medium">{new Date(decayStatus.decay_started).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-purple-200">
+                    <span>Identity Severed:</span>
+                    <span className="font-medium">{decayStatus.identity_severed ? '✓ Yes' : '✗ No'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-purple-200">
+                    <span>Patterns Anonymized:</span>
+                    <span className="font-medium">{decayStatus.patterns_anonymized ? '✓ Yes' : '✗ No'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-purple-200">
+                    <span>Complete By:</span>
+                    <span className="font-medium">{new Date(decayStatus.decay_complete_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <span>Safety Patterns Retained:</span>
+                    <span className="font-medium">{decayStatus.safety_patterns_retained}</span>
+                  </div>
+                </div>
+                <div className="mt-4 text-xs text-purple-600">
+                  <p>The decay protocol will complete over 90 days:</p>
+                  <ul className="mt-2 space-y-1 ml-4">
+                    <li>• Days 0-30: Relationship context retained</li>
+                    <li>• Days 31-60: Behavioral data aggregated</li>
+                    <li>• Days 61-90: Identity markers removed</li>
+                    <li>• Day 90: Complete anonymization</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Request form */}
