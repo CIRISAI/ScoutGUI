@@ -72,7 +72,7 @@
         }
 
         // Add cache-busting parameter to force fresh page load
-        const returnUrl = localStorage.getItem('authReturnUrl') || '/';
+        const returnUrl = localStorage.getItem('authReturnUrl') || '/interact';
         const cacheBuster = `_t=${Date.now()}`;
         const separator = returnUrl.includes('?') ? '&' : '?';
         window.location.href = `${returnUrl}${separator}${cacheBuster}`;
