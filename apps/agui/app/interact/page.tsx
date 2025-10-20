@@ -59,9 +59,9 @@ export default function InteractPage() {
       });
       return result;
     },
-    refetchInterval: 5000, // Refetch every 5 seconds instead of 2 to reduce noise
-    staleTime: 0, // Always fetch fresh data, don't use stale cache
-    refetchOnMount: 'always', // Always refetch on component mount
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 4000, // Consider data fresh for 4 seconds (slightly less than refetch interval)
+    structuralSharing: true, // Preserve referential equality when data hasn't changed
     enabled: !!currentAgent && !!user,
   });
 
