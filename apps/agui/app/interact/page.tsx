@@ -75,6 +75,14 @@ export default function InteractPage() {
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
       .slice(-20);
 
+    // Debug: Log message order and timestamps
+    if (sorted.length > 0) {
+      console.log('📊 Message order (oldest to newest):');
+      sorted.forEach((msg, idx) => {
+        console.log(`  ${idx + 1}. [${msg.is_agent ? 'AGENT' : 'USER'}] ${msg.timestamp} - "${msg.content?.substring(0, 30)}..."`);
+      });
+    }
+
     // Only update if messages actually changed (deep equality check)
     if (isEqual(sorted, prevMessagesRef.current)) {
       return prevMessagesRef.current; // Return same reference to prevent downstream recalculations
@@ -905,12 +913,24 @@ export default function InteractPage() {
     );
   }, [messages, tasks, messageToTaskMap]);
 
-  // Auto-scroll to bottom only when new content is added
+  // Auto-scroll to bottom when timeline changes (new messages or re-ordering)
   const prevTimelineLength = useRef(0);
+  const prevTimelineRef = useRef<typeof timeline>([]);
   useEffect(() => {
-    if (timelineContainerRef.current && timeline.length > prevTimelineLength.current) {
-      timelineContainerRef.current.scrollTop = timelineContainerRef.current.scrollHeight;
+    // Scroll if: timeline got longer OR timeline content changed
+    const shouldScroll = timeline.length > prevTimelineLength.current ||
+                        !isEqual(timeline, prevTimelineRef.current);
+
+    if (timelineContainerRef.current && shouldScroll) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        if (timelineContainerRef.current) {
+          timelineContainerRef.current.scrollTop = timelineContainerRef.current.scrollHeight;
+        }
+      }, 100);
+
       prevTimelineLength.current = timeline.length;
+      prevTimelineRef.current = timeline;
     }
   }, [timeline]);
 
