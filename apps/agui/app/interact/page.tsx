@@ -60,7 +60,7 @@ export default function InteractPage() {
       });
       return result;
     },
-    refetchInterval: 30000, // Increased from 2s to 30s - SSE provides real-time task updates
+    refetchInterval: 5000, // Poll every 5 seconds to catch new messages quickly
     structuralSharing: true, // Preserve object references when data is identical
     enabled: !!currentAgent && !!user,
   });
@@ -74,14 +74,6 @@ export default function InteractPage() {
     const sorted = [...history.messages]
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
       .slice(-20);
-
-    // Debug: Log message order and timestamps
-    if (sorted.length > 0) {
-      console.log('📊 Message order (oldest to newest):');
-      sorted.forEach((msg, idx) => {
-        console.log(`  ${idx + 1}. [${msg.is_agent ? 'AGENT' : 'USER'}] ${msg.timestamp} - "${msg.content?.substring(0, 30)}..."`);
-      });
-    }
 
     // Only update if messages actually changed (deep equality check)
     if (isEqual(sorted, prevMessagesRef.current)) {
