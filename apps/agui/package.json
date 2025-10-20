@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_PUBLIC_APP_VERSION=$(node -p \"require('./package.json').version\") NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_BUILD_DATE=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") next build",
+    "build": "rm -rf .next && NEXT_PUBLIC_APP_VERSION=$(node -p \"require('./package.json').version\") NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_BUILD_DATE=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") next build",
     "start": "next start",
     "test": "jest",
-    "pages:build": "NEXT_PUBLIC_APP_VERSION=$(node -p \"require('./package.json').version\") NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_BUILD_DATE=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") npx @cloudflare/next-on-pages",
+    "pages:build": "rm -rf .next .vercel && NEXT_PUBLIC_APP_VERSION=$(node -p \"require('./package.json').version\") NEXT_PUBLIC_GIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown') NEXT_PUBLIC_BUILD_DATE=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\") npx @cloudflare/next-on-pages",
     "pages:deploy": "npm run pages:build && wrangler pages deploy .vercel/output/static",
     "pages:dev": "npx @cloudflare/next-on-pages --watch",
     "preview": "npm run pages:build && wrangler pages dev .vercel/output/static"
