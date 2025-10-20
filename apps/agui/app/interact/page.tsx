@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { cirisClient } from '@/lib/ciris-sdk/client';
 import toast from 'react-hot-toast';
 import { calculateWaterUsage, formatWaterUsage, formatCarbonEmissions, WATER_CALCULATION_EXPLANATION } from '@/lib/environmental-impact';
+import { VersionBadge } from '@/components/VersionBadge';
 
 export default function InteractPage() {
   const { user, hasRole } = useAuth();
@@ -1576,6 +1577,10 @@ export default function InteractPage() {
             </div>
           </>
         )}
+      </div>
+      {/* Version Badge - Fixed in bottom right corner */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <VersionBadge className="bg-white px-3 py-2 rounded-md shadow-sm border border-gray-200" />
       </div>
     </>
   );
