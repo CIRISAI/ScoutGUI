@@ -59,9 +59,7 @@ export default function InteractPage() {
       });
       return result;
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
-    staleTime: 4000, // Consider data fresh for 4 seconds (slightly less than refetch interval)
-    structuralSharing: true, // Preserve referential equality when data hasn't changed
+    refetchInterval: 2000,
     enabled: !!currentAgent && !!user,
   });
 
