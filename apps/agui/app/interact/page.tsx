@@ -59,7 +59,7 @@ export default function InteractPage() {
       });
       return result;
     },
-    refetchInterval: 2000,
+    refetchInterval: 5000, // Refetch every 5 seconds instead of 2 to reduce noise
     enabled: !!currentAgent && !!user,
   });
 
@@ -862,9 +862,6 @@ export default function InteractPage() {
         const taskId = messageToTaskMap.get(msg.id);
         if (taskId) {
           relatedTask = tasks.get(taskId);
-          console.log('🔗 Matched message', msg.id, 'to task', taskId);
-        } else {
-          console.log('⚠️ No task mapping for message', msg.id);
         }
       }
 
@@ -895,10 +892,12 @@ export default function InteractPage() {
     );
   }, [messages, tasks, messageToTaskMap]);
 
-  // Auto-scroll to bottom when timeline changes
+  // Auto-scroll to bottom only when new content is added
+  const prevTimelineLength = useRef(0);
   useEffect(() => {
-    if (timelineContainerRef.current) {
+    if (timelineContainerRef.current && timeline.length > prevTimelineLength.current) {
       timelineContainerRef.current.scrollTop = timelineContainerRef.current.scrollHeight;
+      prevTimelineLength.current = timeline.length;
     }
   }, [timeline]);
 
