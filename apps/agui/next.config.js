@@ -3,6 +3,11 @@ const nextConfig = {
   // Cloudflare Pages will use @cloudflare/next-on-pages adapter
   // No need for static export - Cloudflare handles SSR/ISR
 
+  // Force unique build ID to prevent caching issues
+  generateBuildId: async () => {
+    return `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  },
+
   // Image optimization configuration for Cloudflare
   images: {
     unoptimized: true, // Cloudflare handles image optimization
