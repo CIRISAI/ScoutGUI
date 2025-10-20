@@ -916,7 +916,7 @@ export default function InteractPage() {
         <div className="mb-6 max-w-7xl mx-auto">
           <div className="flex items-start justify-between gap-4">
             <p className="text-sm text-gray-600 max-w-3xl">
-              Scout is an AI agent demonstrating ethical decision-making with full reasoning transparency. Ask Scout a question and watch the decision-making process unfold in real-time. Note: This is a BETA interface - your data is NOT private and is used for demonstration and research purposes only.
+              Scout is an AI agent demonstrating ethical decision-making with full reasoning transparency. Ask Scout a question and watch the decision-making process unfold in real time. Note: This is a BETA interface - your data is NOT private and MAY be used for demonstration and research purposes only.
             </p>
 
             {/* View Mode Toggle */}
