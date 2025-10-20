@@ -60,6 +60,8 @@ export default function InteractPage() {
       return result;
     },
     refetchInterval: 5000, // Refetch every 5 seconds instead of 2 to reduce noise
+    staleTime: 0, // Always fetch fresh data, don't use stale cache
+    refetchOnMount: 'always', // Always refetch on component mount
     enabled: !!currentAgent && !!user,
   });
 
