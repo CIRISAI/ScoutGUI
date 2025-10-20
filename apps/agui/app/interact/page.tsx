@@ -10,6 +10,7 @@ import { cirisClient } from '@/lib/ciris-sdk/client';
 import toast from 'react-hot-toast';
 import { calculateWaterUsage, formatWaterUsage, formatCarbonEmissions, WATER_CALCULATION_EXPLANATION } from '@/lib/environmental-impact';
 import { VersionBadge } from '@/components/VersionBadge';
+import { isEqual } from 'lodash';
 
 export default function InteractPage() {
   const { user, hasRole } = useAuth();
@@ -59,17 +60,29 @@ export default function InteractPage() {
       });
       return result;
     },
-    refetchInterval: 2000,
+    refetchInterval: 30000, // Increased from 2s to 30s - SSE provides real-time task updates
+    structuralSharing: true, // Preserve object references when data is identical
     enabled: !!currentAgent && !!user,
   });
 
   // Get messages and ensure proper order (oldest to newest)
+  // Use ref to store previous messages for deep equality checking
+  const prevMessagesRef = useRef<any[]>([]);
   const messages = useMemo(() => {
-    if (!history?.messages) return [];
-    return [...history.messages]
+    if (!history?.messages) return prevMessagesRef.current;
+
+    const sorted = [...history.messages]
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
       .slice(-20);
-  }, [history]);
+
+    // Only update if messages actually changed (deep equality check)
+    if (isEqual(sorted, prevMessagesRef.current)) {
+      return prevMessagesRef.current; // Return same reference to prevent downstream recalculations
+    }
+
+    prevMessagesRef.current = sorted;
+    return sorted;
+  }, [history?.messages]);
 
   // Connect to reasoning stream
   useEffect(() => {
