@@ -13,6 +13,7 @@ import {
   ProductItem,
 } from "../components/ui/navbar-menu";
 import { cn } from "../lib/utils";
+import { VersionBadge } from "./VersionBadge";
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -207,6 +208,10 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </div>
       </main>
+      {/* Version Badge - Fixed in bottom right corner */}
+      <div className="fixed bottom-4 right-4 z-40">
+        <VersionBadge className="bg-white px-3 py-2 rounded-md shadow-sm border border-gray-200" />
+      </div>
     </div>
   );
 }
