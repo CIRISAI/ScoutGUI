@@ -1001,7 +1001,7 @@ export default function InteractPage() {
                               {/* Show related task if it exists */}
                               {task && !msg.is_agent && (
                                 <div className="mt-2 ml-4">
-                                  <details className="border rounded-lg">
+                                  <details className="border rounded-lg" open={viewMode === 'detailed' && !task.completed}>
                                     <summary className={`cursor-pointer p-3 ${task.color} text-white rounded-t-lg ${task.completed ? 'opacity-60' : ''}`}>
                                       <div className="space-y-2">
                                         <div className="flex justify-between items-center">
@@ -1120,7 +1120,7 @@ export default function InteractPage() {
 
                                         // Detailed mode: show expandable stages
                                         return (
-                                          <details key={thought.thoughtId} className="border border-gray-200 rounded">
+                                          <details key={thought.thoughtId} className="border border-gray-200 rounded" open={viewMode === 'detailed' && !task.completed}>
                                             <summary className="cursor-pointer p-2 bg-white hover:bg-gray-50">
                                               <span className="text-sm font-medium">{truncated}</span>
                                               <span className="text-xs text-gray-500 ml-2">
@@ -1257,7 +1257,7 @@ export default function InteractPage() {
                           // Task item
                           const task = item.data;
                           return (
-                            <details key={`task-${task.taskId}`} className="border rounded-lg">
+                            <details key={`task-${task.taskId}`} className="border rounded-lg" open={viewMode === 'detailed' && !task.completed}>
                               <summary className={`cursor-pointer p-3 ${task.color} text-white rounded-t-lg ${task.completed ? 'opacity-60' : ''}`}>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center">
@@ -1373,7 +1373,7 @@ export default function InteractPage() {
 
                                   // Detailed mode: show expandable stages
                                   return (
-                                    <details key={thought.thoughtId} className="border border-gray-200 rounded">
+                                    <details key={thought.thoughtId} className="border border-gray-200 rounded" open={viewMode === 'detailed' && !task.completed}>
                                       <summary className="cursor-pointer p-2 bg-white hover:bg-gray-50">
                                         <span className="text-sm font-medium">{truncated}</span>
                                         <span className="text-xs text-gray-500 ml-2">
