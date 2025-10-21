@@ -96,7 +96,7 @@ function AccountPageContent() {
 
       const apiBaseUrl = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
 
-      // Extract agent ID from API base URL (format: https://scoutapi.ciris.ai/api/{agent_id})
+      // Extract agent ID from API base URL (format: https://scoutapilb.ciris.ai/api/{agent_id})
       const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)/);
       const agentId = agentIdMatch ? agentIdMatch[1] : (currentAgent?.agent_id || 'scout');
 

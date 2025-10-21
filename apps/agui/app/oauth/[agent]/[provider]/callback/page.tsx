@@ -1,5 +1,5 @@
 // Client-side OAuth callback page
-// Receives auth tokens from scoutapi.ciris.ai and stores them in localStorage
+// Receives auth tokens from scoutapilb.ciris.ai and stores them in localStorage
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';

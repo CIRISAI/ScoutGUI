@@ -52,7 +52,7 @@ export class CIRISClient {
       ? 'http://localhost:8080'
       : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:8080'
-        : 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9');
+        : 'https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9');
 
     const finalBaseURL = options.baseURL || defaultBaseURL;
 
