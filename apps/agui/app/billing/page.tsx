@@ -113,7 +113,7 @@ function CreditBalance({ credits, onPurchaseClick }: {
   return (
     <div
       className={`${colorClass} border-2 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow`}
-      onClick={() => (isEmpty || isLow) && onPurchaseClick()}
+      onClick={onPurchaseClick}
     >
       <div className="flex items-center gap-4">
         <span className="text-5xl">{icon}</span>
@@ -131,11 +131,9 @@ function CreditBalance({ credits, onPurchaseClick }: {
             </p>
           )}
         </div>
-        {(isEmpty || isLow) && (
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Purchase
-          </button>
-        )}
+        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          Purchase
+        </button>
       </div>
     </div>
   );
