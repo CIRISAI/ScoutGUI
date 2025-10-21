@@ -73,7 +73,7 @@ ScoutGUI is configured for deployment to Cloudflare Pages using Wrangler.
 
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed globally
 - Cloudflare account with Pages enabled
-- Scout API endpoint configured at `scoutapi.ciris.ai`
+- Scout API endpoint configured at `scoutapilb.ciris.ai`
 
 ### Initial Setup
 
@@ -124,8 +124,8 @@ Configure environment variables in the Cloudflare dashboard:
 3. Add the following variables:
 
    **Production:**
-   - `NEXT_PUBLIC_SCOUT_API_URL` = `https://scoutapi.ciris.ai`
-   - `NEXT_PUBLIC_API_BASE_URL` = `https://scoutapi.ciris.ai`
+   - `NEXT_PUBLIC_SCOUT_API_URL` = `https://scoutapilb.ciris.ai`
+   - `NEXT_PUBLIC_API_BASE_URL` = `https://scoutapilb.ciris.ai`
    - `NEXT_PUBLIC_SCOUT_API_PORT` = `8080`
    - `NEXT_PUBLIC_OAUTH_CLIENT_ID` = (your OAuth client ID)
    - `NEXT_PUBLIC_OAUTH_REDIRECT_URI` = `https://yourdomain.com/oauth/scout/google/callback`
@@ -185,7 +185,7 @@ For automatic deployments:
 - Ensure environment variables are set in Cloudflare dashboard
 
 **API connection issues:**
-- Confirm `NEXT_PUBLIC_SCOUT_API_URL` points to `https://scoutapi.ciris.ai`
+- Confirm `NEXT_PUBLIC_SCOUT_API_URL` points to `https://scoutapilb.ciris.ai`
 - Check CORS settings on the Scout API
 - Verify the API is accessible from your deployment
 

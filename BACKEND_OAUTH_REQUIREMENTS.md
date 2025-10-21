@@ -7,7 +7,7 @@ The frontend OAuth callback has been updated to capture user email and marketing
 
 1. **Frontend initiates OAuth** (login page):
    ```
-   GET https://scoutapi.ciris.ai/api/{agent_id}/v1/auth/oauth/{provider}/login
+   GET https://scoutapilb.ciris.ai/api/{agent_id}/v1/auth/oauth/{provider}/login
      ?redirect_uri=https://scout.ciris.ai/oauth-complete.html?marketing_opt_in={true|false}
    ```
 
@@ -83,7 +83,7 @@ To:
 
 **Step 1: Frontend initiates**
 ```
-GET https://scoutapi.ciris.ai/api/scout/v1/auth/oauth/google/login
+GET https://scoutapilb.ciris.ai/api/scout/v1/auth/oauth/google/login
   ?redirect_uri=https%3A%2F%2Fscout.ciris.ai%2Foauth-complete.html%3Fmarketing_opt_in%3Dtrue
 ```
 

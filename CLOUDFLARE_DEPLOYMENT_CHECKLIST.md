@@ -3,7 +3,7 @@
 ## Issue Summary
 
 After pushing the latest fixes, you're still seeing:
-1. ❌ API calls going to wrong domain: `scout.ciris.ai/v1/auth/me` (should be `scoutapi.ciris.ai`)
+1. ❌ API calls going to wrong domain: `scout.ciris.ai/v1/auth/me` (should be `scoutapilb.ciris.ai`)
 2. ❌ Double `/v1/v1` paths (now fixed in code)
 
 ## Fixes Pushed (Commits 8465e24 and 1331aee)
@@ -14,9 +14,9 @@ After pushing the latest fixes, you're still seeing:
 3. **Updated `.env.example`** - Documented the correct format for environment variables
 
 ### Expected Behavior After Fix:
-- Environment variable: `NEXT_PUBLIC_SCOUT_API_URL=https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1`
-- SDK strips `/v1`: `https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9`
-- Resource adds `/v1/auth/me`: `https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1/auth/me` ✅
+- Environment variable: `NEXT_PUBLIC_SCOUT_API_URL=https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1`
+- SDK strips `/v1`: `https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9`
+- Resource adds `/v1/auth/me`: `https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1/auth/me` ✅
 
 ## Action Required: Check Cloudflare Pages Dashboard
 
@@ -37,14 +37,14 @@ Go to: **Cloudflare Pages Dashboard** → **Settings** → **Environment Variabl
 
 #### Production Environment:
 ```
-NEXT_PUBLIC_SCOUT_API_URL = https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1
-NEXT_PUBLIC_API_BASE_URL = https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1
+NEXT_PUBLIC_SCOUT_API_URL = https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1
+NEXT_PUBLIC_API_BASE_URL = https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1
 ```
 
 ⚠️ **IMPORTANT**: Both should include `/v1` at the end. The SDK will automatically strip it.
 
 #### Check if you have incorrect values:
-- ❌ `NEXT_PUBLIC_SCOUT_API_URL = https://scoutapi.ciris.ai` (missing agent path)
+- ❌ `NEXT_PUBLIC_SCOUT_API_URL = https://scoutapilb.ciris.ai` (missing agent path)
 - ❌ `NEXT_PUBLIC_SCOUT_API_URL = https://scout.ciris.ai` (wrong domain - frontend instead of backend)
 - ❌ Empty or not set
 
@@ -85,17 +85,17 @@ Once deployed, test in a fresh browser session (or incognito):
 
 Expected logs:
 ```
-[CIRIS SDK] Creating default client with baseURL: https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9
+[CIRIS SDK] Creating default client with baseURL: https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9
 [CIRIS SDK] Transport debug: {
-  baseURL: 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9',
+  baseURL: 'https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9',
   path: '/v1/auth/me',
-  finalURL: 'https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1/auth/me'
+  finalURL: 'https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1/auth/me'
 }
 ```
 
 ❌ **If you still see**:
 - `scout.ciris.ai/v1/auth/me` → Environment variable not set or deployment not picked up
-- `scoutapi.ciris.ai/v1/v1/...` → Old code still running (deployment didn't update)
+- `scoutapilb.ciris.ai/v1/v1/...` → Old code still running (deployment didn't update)
 
 ## Troubleshooting
 
@@ -106,8 +106,8 @@ Expected logs:
 **Solution**:
 1. Go to **Settings** → **Environment Variables**
 2. Add/update:
-   - `NEXT_PUBLIC_SCOUT_API_URL` = `https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1`
-   - `NEXT_PUBLIC_API_BASE_URL` = `https://scoutapi.ciris.ai/api/scout-remote-test-dahrb9/v1`
+   - `NEXT_PUBLIC_SCOUT_API_URL` = `https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1`
+   - `NEXT_PUBLIC_API_BASE_URL` = `https://scoutapilb.ciris.ai/api/scout-remote-test-dahrb9/v1`
 3. Save and retry deployment
 
 ### Problem: Still seeing double `/v1/v1` paths
