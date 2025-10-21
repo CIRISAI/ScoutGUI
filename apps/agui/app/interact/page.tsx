@@ -866,6 +866,11 @@ export default function InteractPage() {
       relatedTask?: any; // For messages, include their related task if it's ours
     }> = [];
 
+    console.log('🗺️ messageToTaskMap:', Array.from(messageToTaskMap.entries()).map(([msgId, taskId]) =>
+      `${msgId.slice(-8)} -> ${taskId.slice(-8)}`
+    ));
+    console.log('📋 Available tasks:', Array.from(tasks.keys()).map(id => id.slice(-8)));
+
     // Add messages with their related tasks
     messages.forEach(msg => {
       // Find if there's a task that belongs to this message using message_id -> task_id mapping
@@ -875,6 +880,11 @@ export default function InteractPage() {
         const taskId = messageToTaskMap.get(msg.id);
         if (taskId) {
           relatedTask = tasks.get(taskId);
+          if (!relatedTask) {
+            console.log(`⚠️ Message ${msg.id.slice(-8)} mapped to task ${taskId.slice(-8)}, but task not found in tasks Map`);
+          }
+        } else {
+          console.log(`⚠️ User message ${msg.id.slice(-8)} has no task mapping`);
         }
       }
 
@@ -996,12 +1006,22 @@ export default function InteractPage() {
                                 }`}>
                                   {msg.content}
                                 </div>
-                                {/* Debug: Show task correlation info for user messages */}
-                                {!msg.is_agent && task && (
-                                  <div className="text-xs text-gray-500 mt-1">
-                                    ✓ Task: {task.taskId.slice(-8)}
-                                  </div>
-                                )}
+                                {/* Show task mapping info for all messages */}
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {!msg.is_agent && (
+                                    <>
+                                      <span className="font-mono">msg: {msg.id?.slice(-8) || 'no-id'}</span>
+                                      {task ? (
+                                        <span className="ml-2 text-green-600">✓ task: {task.taskId.slice(-8)}</span>
+                                      ) : (
+                                        <span className="ml-2 text-red-600">✗ no task mapped</span>
+                                      )}
+                                    </>
+                                  )}
+                                  {msg.is_agent && (
+                                    <span className="font-mono">msg: {msg.id?.slice(-8) || 'no-id'}</span>
+                                  )}
+                                </div>
                               </div>
 
                               {/* Show related task if it exists */}
@@ -1267,7 +1287,10 @@ export default function InteractPage() {
                               <summary className={`cursor-pointer p-3 ${task.color} text-white rounded-t-lg ${task.completed ? 'opacity-60' : ''}`}>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center">
-                                    <span className="font-medium">{task.description || task.taskId.slice(-8)}</span>
+                                    <div className="flex-1">
+                                      <span className="font-medium">{task.description || task.taskId.slice(-8)}</span>
+                                      <div className="text-xs opacity-75 font-mono mt-1">task: {task.taskId.slice(-8)}</div>
+                                    </div>
                                     <span className="text-xs">{task.thoughts.length} thought(s)</span>
                                   </div>
                                   {(() => {
