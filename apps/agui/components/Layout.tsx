@@ -14,6 +14,7 @@ import {
 } from "../components/ui/navbar-menu";
 import { cn } from "../lib/utils";
 import { VersionBadge } from "./VersionBadge";
+import { GithubLogoIcon } from "@phosphor-icons/react";
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -180,6 +181,14 @@ function Navbar({ className }: { className?: string }) {
             </div>
           </MenuItem>
         )}
+        <Link
+          href="https://github.com/CIRISAI/CIRISAgent"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center space-x-1 text-gray-700 hover:text-brand-primary transition-colors">
+          <GithubLogoIcon size={20} weight="fill" />
+          <span className="text-sm font-medium">GitHub</span>
+        </Link>
         {user && (
           <div className="flex items-center space-x-4">
             {hasRole("SYSTEM_ADMIN") && (

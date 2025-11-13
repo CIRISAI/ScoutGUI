@@ -88,7 +88,9 @@ export const FloatingNav = ({
           </Link>
         ))}
         <Link
-          href={"https://github.com/CIRISAI"}
+          href={"https://github.com/CIRISAI/CIRISAgent"}
+          target="_blank"
+          rel="noopener noreferrer"
           className={
             "text-brand-primary fill-brand-primary flex items-center space-x-1 rounded-full border-2 px-4 py-1 text-sm hover:fill-black hover:text-black dark:text-neutral-50"
           }
