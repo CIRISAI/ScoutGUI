@@ -8,7 +8,7 @@ import {
 import { cn } from "../../../lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-import { GithubLogoIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon, Globe } from "@phosphor-icons/react";
 import LogoIcon from "./LogoIcon";
 
 export const FloatingNav = ({
@@ -97,6 +97,17 @@ export const FloatingNav = ({
         >
           <GithubLogoIcon fill="current" className="mr-1" size={16} />
           <span className="text-xxs font-bold">Github</span>
+        </Link>
+        <Link
+          href={"https://ciris.ai"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={
+            "text-brand-primary fill-brand-primary flex items-center space-x-1 rounded-full border-2 px-4 py-1 text-sm hover:fill-black hover:text-black dark:text-neutral-50"
+          }
+        >
+          <Globe fill="current" className="mr-1" size={16} weight="fill" />
+          <span className="text-xxs font-bold">CIRIS.ai</span>
         </Link>
       </motion.div>
     </AnimatePresence>

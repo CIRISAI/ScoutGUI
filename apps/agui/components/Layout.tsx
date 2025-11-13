@@ -14,7 +14,7 @@ import {
 } from "../components/ui/navbar-menu";
 import { cn } from "../lib/utils";
 import { VersionBadge } from "./VersionBadge";
-import { GithubLogoIcon } from "@phosphor-icons/react";
+import { GithubLogoIcon, Globe } from "@phosphor-icons/react";
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -188,6 +188,14 @@ function Navbar({ className }: { className?: string }) {
           className="flex items-center space-x-1 text-gray-700 hover:text-brand-primary transition-colors">
           <GithubLogoIcon size={20} weight="fill" />
           <span className="text-sm font-medium">GitHub</span>
+        </Link>
+        <Link
+          href="https://ciris.ai"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center space-x-1 text-gray-700 hover:text-brand-primary transition-colors">
+          <Globe size={20} weight="fill" />
+          <span className="text-sm font-medium">CIRIS.ai</span>
         </Link>
         {user && (
           <div className="flex items-center space-x-4">
