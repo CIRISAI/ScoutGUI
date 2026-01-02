@@ -212,20 +212,65 @@ export default function CommsPage() {
                   // Debug log to see message structure
                   if (idx === 0) console.log('Message structure:', msg);
 
+                  // Determine message type - use explicit message_type if available, fallback to is_agent
+                  const messageType = msg.message_type || (msg.is_agent ? 'agent' : 'user');
+
+                  // Get styling based on message type
+                  const getMessageStyle = () => {
+                    switch (messageType) {
+                      case 'system':
+                        return {
+                          container: 'justify-center',
+                          bubble: 'bg-blue-50 border border-blue-200 text-blue-800',
+                          header: 'text-blue-600',
+                          icon: (
+                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          )
+                        };
+                      case 'error':
+                        return {
+                          container: 'justify-center',
+                          bubble: 'bg-red-50 border border-red-200 text-red-800',
+                          header: 'text-red-600',
+                          icon: (
+                            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                          )
+                        };
+                      case 'user':
+                        return {
+                          container: 'justify-end',
+                          bubble: 'bg-blue-600 text-white',
+                          header: 'text-blue-100',
+                          icon: null
+                        };
+                      case 'agent':
+                      default:
+                        return {
+                          container: 'justify-start',
+                          bubble: 'bg-white border border-gray-200',
+                          header: 'text-gray-500',
+                          icon: null
+                        };
+                    }
+                  };
+
+                  const style = getMessageStyle();
+
                   return (
                     <div
                       key={msg.id || idx}
-                      className={`flex ${msg.is_agent ? 'justify-start' : 'justify-end'}`}
+                      className={`flex ${style.container}`}
                     >
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          msg.is_agent
-                            ? 'bg-white border border-gray-200'
-                            : 'bg-blue-600 text-white'
-                        }`}
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${style.bubble}`}
                       >
-                        <div className={`text-xs mb-1 ${msg.is_agent ? 'text-gray-500' : 'text-blue-100'}`}>
-                          {msg.author || (msg.is_agent ? 'CIRIS' : 'You')} • {new Date(msg.timestamp).toLocaleTimeString()}
+                        <div className={`text-xs mb-1 ${style.header}`}>
+                          {style.icon}
+                          {msg.author || (messageType === 'system' ? 'System' : messageType === 'error' ? 'Error' : msg.is_agent ? 'CIRIS' : 'You')} • {new Date(msg.timestamp).toLocaleTimeString()}
                         </div>
                         <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
                       </div>

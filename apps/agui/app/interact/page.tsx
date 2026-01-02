@@ -988,12 +988,55 @@ export default function InteractPage() {
                           const msg = item.data;
                           const task = item.relatedTask;
 
+                          // Determine message type - use explicit message_type if available, fallback to is_agent
+                          const messageType = msg.message_type || (msg.is_agent ? 'agent' : 'user');
+
+                          // Get styling based on message type
+                          const getMessageStyle = () => {
+                            switch (messageType) {
+                              case 'system':
+                                return {
+                                  container: 'text-center',
+                                  bubble: 'bg-blue-100 text-blue-800 border border-blue-300',
+                                  icon: (
+                                    <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                  )
+                                };
+                              case 'error':
+                                return {
+                                  container: 'text-center',
+                                  bubble: 'bg-red-100 text-red-800 border border-red-300',
+                                  icon: (
+                                    <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                  )
+                                };
+                              case 'user':
+                                return {
+                                  container: 'text-right',
+                                  bubble: 'bg-blue-500 text-white',
+                                  icon: null
+                                };
+                              case 'agent':
+                              default:
+                                return {
+                                  container: 'text-left',
+                                  bubble: 'bg-gray-200',
+                                  icon: null
+                                };
+                            }
+                          };
+
+                          const style = getMessageStyle();
+
                           return (
                             <div key={`msg-${msg.id || i}`} className="mb-3">
-                              <div className={`${!msg.is_agent ? 'text-right' : 'text-left'}`}>
-                                <div className={`inline-block px-4 py-2 rounded ${
-                                  !msg.is_agent ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                                }`}>
+                              <div className={style.container}>
+                                <div className={`inline-block px-4 py-2 rounded ${style.bubble}`}>
+                                  {style.icon}
                                   {msg.content}
                                 </div>
                               </div>
