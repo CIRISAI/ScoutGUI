@@ -276,7 +276,8 @@ export default function InteractPage() {
     sendMessageMutation.mutate(msgToSend);
   };
 
-  const stageNames = ['thought_start', 'snapshot_and_context', 'dma_results', 'aspdma_result', 'conscience_result', 'action_result'];
+  // v1.9.3: 8 events (7 core + 1 optional TSASPDMA for tool actions)
+  const stageNames = ['thought_start', 'snapshot_and_context', 'dma_results', 'idma_result', 'tsaspdma_result', 'aspdma_result', 'conscience_result', 'action_result'];
 
   // Get stage number based on position
   const getStageNumber = (stageName: string): string => {
@@ -512,6 +513,182 @@ export default function InteractPage() {
     if (stageName === 'dma_results') {
       const initialSelected = stageKey ? selectedDMAs[stageKey] : undefined;
       return <DMAResultsSelector data={data} renderExpandableData={renderExpandableData} initialSelected={initialSelected} />;
+    }
+
+    // Special rendering for idma_result (v1.9.3 - Identity/Epistemic Check)
+    if (stageName === 'idma_result') {
+      const isFragile = data.is_fragile ?? false;
+      const fragilityReason = data.fragility_reason || null;
+      const epistemicHumility = data.epistemic_humility ?? null;
+      const diversityScore = data.diversity_score ?? null;
+      const correlationFactors = data.correlation_factors || [];
+
+      const otherFields = Object.keys(data).filter(
+        key => !['is_fragile', 'fragility_reason', 'epistemic_humility', 'diversity_score', 'correlation_factors', 'thought_id', 'event_type', 'timestamp'].includes(key)
+      );
+
+      return (
+        <div className="space-y-3">
+          {/* Fragility Status */}
+          <div className={`flex items-center gap-3 border rounded-lg p-3 ${
+            isFragile ? 'bg-yellow-50 border-yellow-300' : 'bg-green-50 border-green-200'
+          }`}>
+            <div className="flex-1">
+              <div className={`font-bold text-lg ${isFragile ? 'text-yellow-800' : 'text-green-800'}`}>
+                {isFragile ? '⚠️ FRAGILE' : '✓ STABLE'}
+              </div>
+              {fragilityReason && (
+                <div className="text-sm text-yellow-700 mt-1">{fragilityReason}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Epistemic Metrics */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* Epistemic Humility (Confidence) */}
+            {epistemicHumility !== null && (
+              <div className="p-2 rounded border bg-blue-50 border-blue-200">
+                <div className="text-xs font-medium text-gray-600">Confidence</div>
+                <div className="text-lg font-bold text-blue-800">{(epistemicHumility * 100).toFixed(0)}%</div>
+                <div className="w-full bg-blue-200 rounded-full h-1.5 mt-1">
+                  <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${epistemicHumility * 100}%` }}></div>
+                </div>
+              </div>
+            )}
+
+            {/* Diversity Score (DMA Agreement) */}
+            {diversityScore !== null && (
+              <div className="p-2 rounded border bg-purple-50 border-purple-200">
+                <div className="text-xs font-medium text-gray-600">DMA Agreement</div>
+                <div className="text-lg font-bold text-purple-800">{(diversityScore * 100).toFixed(0)}%</div>
+                <div className="w-full bg-purple-200 rounded-full h-1.5 mt-1">
+                  <div className="bg-purple-600 h-1.5 rounded-full" style={{ width: `${diversityScore * 100}%` }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Correlation Factors */}
+          {correlationFactors.length > 0 && (
+            <details>
+              <summary className="cursor-pointer text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-xs">
+                🔗 Correlation Factors ({correlationFactors.length})
+              </summary>
+              <div className="ml-2 mt-2 space-y-1 border-l-2 border-gray-300 pl-2">
+                {correlationFactors.map((factor: string, idx: number) => (
+                  <div key={idx} className="text-xs text-gray-700">{factor}</div>
+                ))}
+              </div>
+            </details>
+          )}
+
+          {/* Other fields */}
+          {otherFields.length > 0 && (
+            <details>
+              <summary className="cursor-pointer text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-xs">
+                📋 View details ({otherFields.length} more fields)
+              </summary>
+              <div className="ml-2 mt-2 space-y-1 border-l-2 border-gray-300 pl-2">
+                {otherFields.map(field => (
+                  <div key={field} className="py-1">
+                    <span className="text-blue-600 font-medium text-xs mr-2">{field}:</span>
+                    {renderExpandableData(data[field], 2)}
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
+        </div>
+      );
+    }
+
+    // Special rendering for tsaspdma_result (v1.9.3 - Tool Validation, optional)
+    if (stageName === 'tsaspdma_result') {
+      const originalToolName = data.original_tool_name || 'Unknown';
+      const finalAction = data.final_action || 'unknown'; // "tool", "speak", or "ponder"
+      const finalToolName = data.final_tool_name || originalToolName;
+      const rationale = data.tsaspdma_rationale || data.rationale || '';
+
+      // Determine status styling
+      const getStatusStyle = () => {
+        switch (finalAction) {
+          case 'tool':
+            return { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-800', icon: '✅', label: 'Approved' };
+          case 'speak':
+            return { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-800', icon: '⚠️', label: 'Needs Clarification' };
+          case 'ponder':
+            return { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-800', icon: '🔄', label: 'Reconsidering' };
+          default:
+            return { bg: 'bg-gray-50', border: 'border-gray-300', text: 'text-gray-800', icon: '❓', label: 'Unknown' };
+        }
+      };
+
+      const status = getStatusStyle();
+
+      const otherFields = Object.keys(data).filter(
+        key => !['original_tool_name', 'final_action', 'final_tool_name', 'final_parameters', 'tsaspdma_rationale', 'rationale', 'thought_id', 'event_type', 'timestamp'].includes(key)
+      );
+
+      return (
+        <div className="space-y-3">
+          {/* Tool Validation Status */}
+          <div className={`${status.bg} ${status.border} border rounded-lg p-3`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xl">{status.icon}</span>
+              <span className={`font-bold ${status.text}`}>{status.label}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <span className="text-gray-600">Tool:</span>
+                <span className="ml-2 font-mono font-medium">{finalToolName}</span>
+              </div>
+              {originalToolName !== finalToolName && (
+                <div>
+                  <span className="text-gray-600">Original:</span>
+                  <span className="ml-2 font-mono text-gray-500 line-through">{originalToolName}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Rationale */}
+          {rationale && (
+            <div>
+              <div className="text-blue-600 font-semibold mb-2">Reasoning:</div>
+              <div className="ml-2 text-gray-700 whitespace-pre-wrap text-sm">{rationale}</div>
+            </div>
+          )}
+
+          {/* Final Parameters */}
+          {data.final_parameters && Object.keys(data.final_parameters).length > 0 && (
+            <details>
+              <summary className="cursor-pointer text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-xs">
+                🔧 Tool Parameters
+              </summary>
+              <div className="ml-2 mt-2">
+                {renderExpandableData(data.final_parameters, 1)}
+              </div>
+            </details>
+          )}
+
+          {/* Other fields */}
+          {otherFields.length > 0 && (
+            <details>
+              <summary className="cursor-pointer text-gray-600 hover:bg-gray-100 px-2 py-1 rounded text-xs">
+                📋 View details ({otherFields.length} more fields)
+              </summary>
+              <div className="ml-2 mt-2 space-y-1 border-l-2 border-gray-300 pl-2">
+                {otherFields.map(field => (
+                  <div key={field} className="py-1">
+                    <span className="text-blue-600 font-medium text-xs mr-2">{field}:</span>
+                    {renderExpandableData(data[field], 2)}
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
+        </div>
+      );
     }
 
     // Special rendering for aspdma_result
@@ -1084,8 +1261,10 @@ export default function InteractPage() {
                                           : thoughtContent;
 
                                         if (viewMode === 'basic') {
-                                          // Basic mode: show compact key stages (DMA, Action, Conscience, Final Action)
+                                          // Basic mode: show compact key stages (DMA, IDMA, TSASPDMA, Action, Conscience, Final Action)
                                           const dmaStage = thought.stages.get('dma_results');
+                                          const idmaStage = thought.stages.get('idma_result');
+                                          const tsaspdmaStage = thought.stages.get('tsaspdma_result');
                                           const aspdmaStage = thought.stages.get('aspdma_result');
                                           const conscienceStage = thought.stages.get('conscience_result');
                                           const actionStage = thought.stages.get('action_result');
@@ -1105,6 +1284,36 @@ export default function InteractPage() {
                                                   <span className="px-1.5 py-0.5 bg-gray-100 rounded font-bold" title="DMAs">
                                                     CS·DS·E
                                                   </span>
+                                                )}
+
+                                                {/* IDMA indicator (v1.9.3) */}
+                                                {idmaStage && (
+                                                  <>
+                                                    <span className="text-gray-400">→</span>
+                                                    <span className={`px-1.5 py-0.5 rounded font-bold ${
+                                                      idmaStage.data?.is_fragile
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-green-100 text-green-800'
+                                                    }`} title={idmaStage.data?.is_fragile ? `Fragile: ${idmaStage.data?.fragility_reason || 'Unknown'}` : 'Identity check stable'}>
+                                                      ID{idmaStage.data?.is_fragile ? '⚠' : '✓'}
+                                                    </span>
+                                                  </>
+                                                )}
+
+                                                {/* TSASPDMA indicator (v1.9.3 - only for tool actions) */}
+                                                {tsaspdmaStage && (
+                                                  <>
+                                                    <span className="text-gray-400">→</span>
+                                                    <span className={`px-1.5 py-0.5 rounded font-bold ${
+                                                      tsaspdmaStage.data?.final_action === 'tool'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : tsaspdmaStage.data?.final_action === 'speak'
+                                                          ? 'bg-yellow-100 text-yellow-800'
+                                                          : 'bg-blue-100 text-blue-800'
+                                                    }`} title={`Tool: ${tsaspdmaStage.data?.final_tool_name || 'Unknown'}`}>
+                                                      🔧{tsaspdmaStage.data?.final_action === 'tool' ? '✓' : tsaspdmaStage.data?.final_action === 'speak' ? '?' : '↻'}
+                                                    </span>
+                                                  </>
                                                 )}
 
                                                 {/* First pass: Selected Action */}
@@ -1252,6 +1461,28 @@ export default function InteractPage() {
                                                         >E</span>
                                                       </span>
                                                     )}
+                                                    {/* Show IDMA fragility status (v1.9.3) */}
+                                                    {stageName === 'idma_result' && (
+                                                      <span className={`mr-2 px-1.5 py-0.5 rounded text-xs font-bold ${
+                                                        stage.data.is_fragile
+                                                          ? 'bg-yellow-100 text-yellow-800'
+                                                          : 'bg-green-100 text-green-800'
+                                                      }`} title={stage.data.is_fragile ? `Fragile: ${stage.data.fragility_reason || 'Unknown'}` : `Confidence: ${((stage.data.epistemic_humility || 0) * 100).toFixed(0)}%`}>
+                                                        {stage.data.is_fragile ? '⚠️ FRAGILE' : `✓ ${((stage.data.epistemic_humility || 0) * 100).toFixed(0)}%`}
+                                                      </span>
+                                                    )}
+                                                    {/* Show TSASPDMA tool validation status (v1.9.3) */}
+                                                    {stageName === 'tsaspdma_result' && (
+                                                      <span className={`mr-2 px-1.5 py-0.5 rounded text-xs font-bold ${
+                                                        stage.data.final_action === 'tool'
+                                                          ? 'bg-green-100 text-green-800'
+                                                          : stage.data.final_action === 'speak'
+                                                            ? 'bg-yellow-100 text-yellow-800'
+                                                            : 'bg-blue-100 text-blue-800'
+                                                      }`} title={`Tool: ${stage.data.final_tool_name || stage.data.original_tool_name || 'Unknown'}`}>
+                                                        🔧 {stage.data.final_action === 'tool' ? '✓' : stage.data.final_action === 'speak' ? '?' : '↻'} {stage.data.final_tool_name || stage.data.original_tool_name || ''}
+                                                      </span>
+                                                    )}
                                                     {/* Show action label for ASPDMA */}
                                                     {stageName === 'aspdma_result' && stage.data.selected_action && (
                                                       <span className="mr-2 px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold" title={`Action: ${stage.data.selected_action}`}>
@@ -1337,8 +1568,10 @@ export default function InteractPage() {
                                     : thoughtContent;
 
                                   if (viewMode === 'basic') {
-                                    // Basic mode: show compact key stages (DMA, Action, Conscience, Final Action)
+                                    // Basic mode: show compact key stages (DMA, IDMA, TSASPDMA, Action, Conscience, Final Action)
                                     const dmaStage = thought.stages.get('dma_results');
+                                    const idmaStage = thought.stages.get('idma_result');
+                                    const tsaspdmaStage = thought.stages.get('tsaspdma_result');
                                     const aspdmaStage = thought.stages.get('aspdma_result');
                                     const conscienceStage = thought.stages.get('conscience_result');
                                     const actionStage = thought.stages.get('action_result');
@@ -1358,6 +1591,36 @@ export default function InteractPage() {
                                             <span className="px-1.5 py-0.5 bg-gray-100 rounded font-bold" title="DMAs">
                                               CS·DS·E
                                             </span>
+                                          )}
+
+                                          {/* IDMA indicator (v1.9.3) */}
+                                          {idmaStage && (
+                                            <>
+                                              <span className="text-gray-400">→</span>
+                                              <span className={`px-1.5 py-0.5 rounded font-bold ${
+                                                idmaStage.data?.is_fragile
+                                                  ? 'bg-yellow-100 text-yellow-800'
+                                                  : 'bg-green-100 text-green-800'
+                                              }`} title={idmaStage.data?.is_fragile ? `Fragile: ${idmaStage.data?.fragility_reason || 'Unknown'}` : 'Identity check stable'}>
+                                                ID{idmaStage.data?.is_fragile ? '⚠' : '✓'}
+                                              </span>
+                                            </>
+                                          )}
+
+                                          {/* TSASPDMA indicator (v1.9.3 - only for tool actions) */}
+                                          {tsaspdmaStage && (
+                                            <>
+                                              <span className="text-gray-400">→</span>
+                                              <span className={`px-1.5 py-0.5 rounded font-bold ${
+                                                tsaspdmaStage.data?.final_action === 'tool'
+                                                  ? 'bg-green-100 text-green-800'
+                                                  : tsaspdmaStage.data?.final_action === 'speak'
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-blue-100 text-blue-800'
+                                              }`} title={`Tool: ${tsaspdmaStage.data?.final_tool_name || 'Unknown'}`}>
+                                                🔧{tsaspdmaStage.data?.final_action === 'tool' ? '✓' : tsaspdmaStage.data?.final_action === 'speak' ? '?' : '↻'}
+                                              </span>
+                                            </>
                                           )}
 
                                           {/* First pass: Selected Action */}
@@ -1504,6 +1767,28 @@ export default function InteractPage() {
                                                       setSelectedDMAs(prev => ({ ...prev, [`thought-${thought.thoughtId}-dma`]: 'pdma' }));
                                                     }}
                                                   >E</span>
+                                                </span>
+                                              )}
+                                              {/* Show IDMA fragility status (v1.9.3) */}
+                                              {stageName === 'idma_result' && (
+                                                <span className={`mr-2 px-1.5 py-0.5 rounded text-xs font-bold ${
+                                                  stage.data.is_fragile
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-green-100 text-green-800'
+                                                }`} title={stage.data.is_fragile ? `Fragile: ${stage.data.fragility_reason || 'Unknown'}` : `Confidence: ${((stage.data.epistemic_humility || 0) * 100).toFixed(0)}%`}>
+                                                  {stage.data.is_fragile ? '⚠️ FRAGILE' : `✓ ${((stage.data.epistemic_humility || 0) * 100).toFixed(0)}%`}
+                                                </span>
+                                              )}
+                                              {/* Show TSASPDMA tool validation status (v1.9.3) */}
+                                              {stageName === 'tsaspdma_result' && (
+                                                <span className={`mr-2 px-1.5 py-0.5 rounded text-xs font-bold ${
+                                                  stage.data.final_action === 'tool'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : stage.data.final_action === 'speak'
+                                                      ? 'bg-yellow-100 text-yellow-800'
+                                                      : 'bg-blue-100 text-blue-800'
+                                                }`} title={`Tool: ${stage.data.final_tool_name || stage.data.original_tool_name || 'Unknown'}`}>
+                                                  🔧 {stage.data.final_action === 'tool' ? '✓' : stage.data.final_action === 'speak' ? '?' : '↻'} {stage.data.final_tool_name || stage.data.original_tool_name || ''}
                                                 </span>
                                               )}
                                               {/* Show action label for ASPDMA */}
