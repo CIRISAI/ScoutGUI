@@ -1,7 +1,22 @@
 # Cloudflare Pages/Workers Configuration for ScoutGUI
 
 name = "scoutgui"
-compatibility_date = "2024-01-01"
+# 2024-09-23 is the threshold at which `nodejs_compat` provides the FULL Node.js
+# API surface (the v2 semantics). Before it, the flag gives a limited polyfill
+# set that omits `node:async_hooks` / AsyncLocalStorage — which React's SSR path
+# inside @cloudflare/next-on-pages depends on.
+#
+# The symptom was precise: every STATIC page served fine (no Function invoked),
+# and every DYNAMIC route returned the Workers runtime's unhandled-exception
+# response — HTTP 500, content-type text/plain, body "Internal Server Error",
+# with no Next.js headers at all, because the Function died before Next ran:
+#
+#     /oauth/callback                        static   200  (x-nextjs-prerender: 1)
+#     /oauth/[agent]/callback                dynamic  500
+#     /oauth/[agent]/[provider]/callback     dynamic  500
+#
+# This date was "2024-01-01" — nine months before the threshold.
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # Pages configuration
