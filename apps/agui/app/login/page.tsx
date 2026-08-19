@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { SDK_VERSION } from "../../lib/ciris-sdk/version";
 import LogoIcon from "../../components/ui/floating/LogoIcon";
@@ -13,6 +13,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [betaAcknowledged, setBetaAcknowledged] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
+  const [redirectNotice, setRedirectNotice] = useState<string | null>(null);
+
+  // SHOW WHY WE WERE SENT BACK HERE.
+  //
+  // The OAuth callback redirects to /login?error=... on every failure path and
+  // nothing on this page ever read it, so a user whose sign-in did not complete
+  // landed on a blank form with no explanation — and neither the user nor the
+  // person debugging it could tell a provider rejection from "the session never
+  // reached this browser". The reason was in the URL the whole time.
+  //
+  // Read from window.location rather than useSearchParams(): this is a client
+  // component and useSearchParams() forces a Suspense boundary at build time.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("error");
+    if (!code) return;
+
+    const provider = params.get("provider");
+    const named = provider ? provider.charAt(0).toUpperCase() + provider.slice(1) : "The provider";
+    const reason = params.get("reason");
+
+    const messages: Record<string, string> = {
+      // The provider itself refused.
+      oauth_failed: `${named} sign-in did not complete.`,
+      // Sign-in worked; no session reached this browser. Telling the user to try
+      // again is useless if the cause is configuration, so name the reason.
+      no_session: `${named} sign-in completed, but no session reached this browser. Your account was not rejected.`,
+    };
+
+    const base = messages[code] ?? `Sign-in did not complete (${code}).`;
+    setRedirectNotice(reason ? `${base} Reason: ${reason}` : base);
+  }, []);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -92,6 +125,11 @@ export default function LoginPage() {
           <p className="mt-2 text-center text-sm text-gray-600">
             Access your Scout AI agent
           </p>
+          {redirectNotice && (
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-sm text-amber-700">{redirectNotice}</p>
+            </div>
+          )}
           {error && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
               <p className="text-sm text-red-600">{error.message}</p>

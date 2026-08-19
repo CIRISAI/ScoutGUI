@@ -64,7 +64,19 @@ export default function OAuthCallbackPage() {
           var agentId = parts[2] || '';
           var provider = parts[3] || '';
 
-          function go(url) { window.location.href = url; }
+          // Narrate the decision. When this page redirects, whatever it knew is
+          // gone unless the destination renders it — so leave a trace here too.
+          console.log('[ciris-oauth] callback', {
+            agentId: agentId,
+            provider: provider,
+            apiBase: API_BASE,
+            query: Object.fromEntries(params.entries()),
+            hasCode: !!params.get('ciris_code'),
+            hasLegacyToken: !!params.get('access_token'),
+            providerError: params.get('error') || null
+          });
+
+          function go(url) { console.log('[ciris-oauth] ->', url); window.location.href = url; }
 
           function fail(code, reason) {
             go('/login?error=' + encodeURIComponent(code)
