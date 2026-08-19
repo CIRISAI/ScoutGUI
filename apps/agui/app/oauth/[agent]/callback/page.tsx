@@ -41,56 +41,107 @@ function OAuthCallbackContent() {
       return;
     }
 
-    // Handle direct token response from API
+    // ONE PLACE THAT ESTABLISHES A SESSION, whichever route produced it.
+    // Both the single-use-code exchange and the legacy query-string response end
+    // up here, so SDK configuration, AuthStore writes and auth-context updates
+    // cannot drift apart between them.
+    const establishSession = (s: {
+      access_token: string;
+      token_type?: string;
+      role: string;
+      user_id: string;
+      expires_in?: number;
+      email?: string;
+    }) => {
+      const user = {
+        user_id: s.user_id,
+        username: s.email || s.user_id,
+        role: s.role as any, // Role comes as a string over the wire
+        api_role: s.role as any, // For the required api_role field
+        wa_role: undefined, // OAuth users don't have WA role initially
+        permissions: [],
+        created_at: new Date().toISOString(),
+        last_login: new Date().toISOString()
+      };
+
+      // CRITICAL: Configure SDK before setting auth state, so every subsequent
+      // API call uses the right configuration.
+      sdkConfigManager.configureForOAuthCallback(agentId, s.access_token);
+
+      AuthStore.saveToken({
+        access_token: s.access_token,
+        token_type: s.token_type || 'Bearer',
+        expires_in: s.expires_in || 3600,
+        user_id: s.user_id,
+        role: s.role,
+        created_at: Date.now()
+      });
+      AuthStore.saveUser(user);
+
+      setToken(s.access_token);
+      setUser(user);
+      localStorage.setItem('selectedAgentId', agentId);
+
+      const { mode } = detectDeploymentMode();
+      const dest = mode === 'managed' ? `/agent/${agentId}` : '/';
+      console.log('[OAuth Callback] session established, redirecting to', dest);
+      router.push(dest);
+    };
+
+    // THE SINGLE-USE CODE (CIRISServer#439).
+    //
+    // The node stopped echoing a live bearer back in the URL — that put a 24h
+    // credential into browser history, into the Referer of every subsequent
+    // request, and into every proxy log on the path. It parks the session and
+    // hands back a one-time `ciris_code`, redeemed in a POST response BODY.
+    //
+    // This route had no idea. It checked only for `access_token`, so a node on
+    // the exchange flow would have fallen through to "Missing OAuth callback
+    // parameters" — reporting a malformed callback for a sign-in that had
+    // entirely succeeded. That is precisely what oauth-complete.html did to
+    // Scout users until it was fixed; this is the same landmine sitting in the
+    // route nothing happens to redirect to today. "Nothing routes here yet" is
+    // not a property worth depending on.
+    const cirisCode = searchParams.get('ciris_code');
+    if (!accessToken && cirisCode) {
+      try {
+        const baseURL = getApiBaseUrl(agentId);
+        console.log('[OAuth Callback] redeeming ciris_code at', `${baseURL}/v1/auth/oauth/exchange`);
+        const res = await fetch(`${baseURL}/v1/auth/oauth/exchange`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: cirisCode })
+        });
+        const body: any = await res.json().catch(() => ({}));
+        console.log('[OAuth Callback] exchange ->', res.status, res.ok ? 'ok' : (body?.reason_id || 'refused'));
+        if (res.ok && body?.access_token) {
+          establishSession(body);
+        } else {
+          // Carry the node's OWN reason through. An expired code needs a retry
+          // and a refused identity does not, and collapsing those is how this
+          // class of bug starts.
+          setError(`Sign-in completed, but no session reached this browser (${body?.reason_id || `exchange_http_${res.status}`}).`);
+          setProcessing(false);
+        }
+      } catch (err) {
+        console.error('[OAuth Callback] exchange unreachable:', err);
+        setError('Sign-in completed, but this browser could not reach the agent to redeem it.');
+        setProcessing(false);
+      }
+      return;
+    }
+
+    // Pre-exchange nodes still hand the session back in the query string.
     if (accessToken && tokenType && role && userId) {
       try {
         console.log('[OAuth Callback] Processing direct token response:', { agentId, userId, role });
-
-        // Set the authentication state directly
-        const user = {
-          user_id: userId,
-          username: userId,
-          role: role as any, // Role comes as string from query params
-          api_role: role as any, // For the required api_role field
-          wa_role: undefined, // OAuth users don't have WA role initially
-          permissions: [],
-          created_at: new Date().toISOString(),
-          last_login: new Date().toISOString()
-        };
-
-        // CRITICAL: Configure SDK before setting auth state
-        // This ensures all subsequent API calls use the correct configuration
-        sdkConfigManager.configureForOAuthCallback(agentId, accessToken);
-
-        // Save auth token to AuthStore for persistence
-        AuthStore.saveToken({
+        establishSession({
           access_token: accessToken,
           token_type: tokenType,
-          expires_in: 3600, // Default 1 hour
+          role,
           user_id: userId,
-          role: role,
-          created_at: Date.now()
+          email: searchParams.get('email') || undefined
         });
-
-        // Save user to AuthStore
-        AuthStore.saveUser(user);
-
-        // Now set the auth context state
-        setToken(accessToken);
-        setUser(user);
-
-        // Store the selected agent for future use
-        localStorage.setItem('selectedAgentId', agentId);
-
-        console.log('[OAuth Callback] SDK configured, redirecting to main page');
-
-        // Redirect to main page or managed agent page based on mode
-        const { mode } = detectDeploymentMode();
-        if (mode === 'managed') {
-          router.push(`/agent/${agentId}`);
-        } else {
-          router.push('/');
-        }
         return;
       } catch (err) {
         console.error('[OAuth Callback] Error:', err);
