@@ -41,45 +41,146 @@
       const provider = params.get('provider');
       const email = params.get('email');
       const marketingOptIn = params.get('marketing_opt_in') === 'true';
+      const cirisCode = params.get('ciris_code');
 
-      if (accessToken && tokenType && role && userId) {
+      // NARRATE THE DECISION. When this page redirects, everything it knew is gone
+      // unless it said so first. This page silently sent a WORKING sign-in to
+      // /login?error=oauth_failed and left no trace of why — the only way to
+      // diagnose it was to read the deployed bundle by hand.
+      console.log('[oauth-complete] arrived', {
+        hasLegacyToken: !!accessToken,
+        hasCirisCode: !!cirisCode,
+        agent: agent,
+        provider: provider,
+        query: Object.fromEntries(params.entries())
+      });
+
+      // WHERE TO POST THE EXCHANGE. This is a STATIC file in public/, so
+      // NEXT_PUBLIC_API_BASE_URL is NOT inlined here the way it is in the compiled
+      // app — reading it would yield undefined. The app persists its resolved base
+      // on every page load (sdk-config-manager), and the user necessarily loaded
+      // /login before starting OAuth, so it is present. Read it rather than
+      // hardcoding a host that would silently rot.
+      function apiBase() {
+        try {
+          const cfg = JSON.parse(localStorage.getItem('sdk_config') || 'null');
+          if (cfg && cfg.baseURL) return String(cfg.baseURL).replace(/\/+$/, '');
+        } catch (e) {}
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && /^agent_.*_api_url$/.test(k)) {
+            const v = localStorage.getItem(k);
+            if (v) return String(v).replace(/\/+$/, '');
+          }
+        }
+        return null;
+      }
+
+      function finish(effAgent, effProvider) {
+        const eff = effAgent || 'scout';
+        localStorage.setItem('selectedAgentId', eff);
+        localStorage.setItem('selectedAgentName', eff.charAt(0).toUpperCase() + eff.slice(1));
+        if (effProvider) localStorage.setItem('authProvider', effProvider);
+        const returnUrl = localStorage.getItem('authReturnUrl') || '/interact';
+        localStorage.removeItem('authReturnUrl');
+        const dest = returnUrl + (returnUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+        console.log('[oauth-complete] signed in ->', dest);
+        window.location.href = dest;
+      }
+
+      function storeSession(s) {
         localStorage.setItem('ciris_auth_token', JSON.stringify({
-          access_token: accessToken,
-          token_type: tokenType,
-          expires_in: expiresIn ? parseInt(expiresIn, 10) : 3600,
-          user_id: userId,
-          role: role,
+          access_token: s.access_token,
+          token_type: s.token_type || 'Bearer',
+          expires_in: s.expires_in ? parseInt(s.expires_in, 10) : 3600,
+          user_id: s.user_id,
+          role: s.role,
           created_at: Date.now()
         }));
-
         localStorage.setItem('ciris_auth_user', JSON.stringify({
-          user_id: userId,
-          username: email || userId,
-          email: email || '',
-          role: role,
-          api_role: role,
+          user_id: s.user_id,
+          username: s.email || email || s.user_id,
+          email: s.email || email || '',
+          role: s.role,
+          api_role: s.role,
           permissions: [],
           marketing_opt_in: marketingOptIn,
           created_at: new Date().toISOString(),
           last_login: new Date().toISOString()
         }));
-
-        const effectiveAgent = agent || 'scout';
-        localStorage.setItem('selectedAgentId', effectiveAgent);
-        localStorage.setItem('selectedAgentName', effectiveAgent.charAt(0).toUpperCase() + effectiveAgent.slice(1));
-        if (provider) {
-          localStorage.setItem('authProvider', provider);
-        }
-
-        // Add cache-busting parameter to force fresh page load
-        const returnUrl = localStorage.getItem('authReturnUrl') || '/interact';
-        const cacheBuster = `_t=${Date.now()}`;
-        const separator = returnUrl.includes('?') ? '&' : '?';
-        window.location.href = `${returnUrl}${separator}${cacheBuster}`;
-        localStorage.removeItem('authReturnUrl');
-      } else {
-        window.location.href = '/login?error=oauth_failed';
+        finish(agent || s.agent_id, provider || 'google');
       }
+
+      // Never redirect without saying why, and never report a cause we did not
+      // observe. `oauth_failed` means the PROVIDER refused; everything here is us
+      // failing to obtain a session — a different sentence to the user, and a
+      // different fix for us.
+      function bail(code, reason) {
+        console.error('[oauth-complete] failing:', code, reason || '(no reason)');
+        window.location.href = '/login?error=' + encodeURIComponent(code)
+          + '&provider=' + encodeURIComponent(provider || 'google')
+          + (reason ? '&reason=' + encodeURIComponent(reason) : '');
+      }
+
+      // ── THE SINGLE-USE CODE (CIRISServer#439) ─────────────────────────────────
+      // The node stopped echoing a live bearer back in the URL — that put a 24h
+      // credential into browser history, into the Referer of every subsequent
+      // request, and into every proxy log on the path. It parks the session and
+      // hands back a one-time `ciris_code` instead, redeemed for the session in a
+      // POST response BODY.
+      //
+      // THIS PAGE NEVER LEARNED THAT. It checked only for `access_token`, found
+      // none, and fell through to the `oauth_failed` branch — so a sign-in that had
+      // fully succeeded reported that the provider had refused it. The provider had
+      // done nothing wrong; we were reading the wrong parameter.
+      //
+      // The legacy branch below is KEPT, not replaced: nodes that have not adopted
+      // the exchange still return a session that way, and this page has to work
+      // against both while the fleet rolls forward.
+      if (!accessToken && cirisCode) {
+        const base = apiBase();
+        if (!base) { bail('no_session', 'no_api_base_in_local_storage'); return; }
+        console.log('[oauth-complete] redeeming ciris_code at', base + '/v1/auth/oauth/exchange');
+        fetch(base + '/v1/auth/oauth/exchange', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: cirisCode })
+        }).then(function (r) {
+          return r.json().catch(function () { return {}; })
+            .then(function (b) { return { ok: r.ok, status: r.status, body: b }; });
+        }).then(function (res) {
+          console.log('[oauth-complete] exchange ->', res.status,
+            res.ok ? 'ok' : ((res.body && res.body.reason_id) || 'refused'));
+          if (res.ok && res.body && res.body.access_token) {
+            storeSession(res.body);
+          } else {
+            // Carry the node's OWN reason through. An expired code needs a retry
+            // and a refused identity does not; collapsing those is how this class
+            // of bug starts.
+            bail('no_session', (res.body && res.body.reason_id) || ('exchange_http_' + res.status));
+          }
+        }).catch(function () {
+          bail('no_session', 'exchange_unreachable');
+        });
+        return;
+      }
+
+      // Pre-exchange nodes still hand the session back in the query string.
+      if (accessToken && tokenType && role && userId) {
+        storeSession({
+          access_token: accessToken,
+          token_type: tokenType,
+          expires_in: expiresIn,
+          user_id: userId,
+          role: role,
+          email: email
+        });
+        return;
+      }
+
+      // No code and no token. The only branch where blaming the provider is
+      // honest — and even here, say what was missing.
+      bail('oauth_failed', cirisCode ? 'code_present_but_unhandled' : 'no_code_and_no_token');
     })();
   </script>
 </body>

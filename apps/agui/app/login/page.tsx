@@ -45,6 +45,18 @@ export default function LoginPage() {
 
     const base = messages[code] ?? `Sign-in did not complete (${code}).`;
     setRedirectNotice(reason ? `${base} Reason: ${reason}` : base);
+
+    // Log the machine-readable form too. The sentence above is for the user;
+    // this is for whoever has to diagnose it, and it survives after the notice
+    // is dismissed. A failed sign-in previously left NOTHING behind — the
+    // redirect wiped the callback's console and this page recorded nothing —
+    // so the only way to find a cause was to read the deployed bundle by hand.
+    console.error('[login] arrived with an OAuth failure', {
+      code,
+      provider: provider || '(absent — the redirecting page did not name one)',
+      reason: reason || '(absent)',
+      url: window.location.href,
+    });
   }, []);
   const { login } = useAuth();
   const router = useRouter();
