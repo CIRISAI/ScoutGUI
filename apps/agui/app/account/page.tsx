@@ -100,8 +100,9 @@ function AccountPageContent() {
       const agentIdMatch = apiBaseUrl.match(/\/api\/([^\/]+)/);
       const agentId = agentIdMatch ? agentIdMatch[1] : (currentAgent?.agent_id || 'scout');
 
-      // Use agent-specific callback URL for linking
-      const redirectUri = encodeURIComponent(`${window.location.origin}/oauth/${agentId}/${provider}/callback`);
+      // Same-origin path only (see login/page.tsx): the API host's nginx
+      // forwards /oauth/* back to this origin.
+      const redirectUri = encodeURIComponent(`/oauth/${agentId}/${provider}/callback`);
 
       // apiBaseUrl does NOT include /v1, so we need to add it
       const oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;

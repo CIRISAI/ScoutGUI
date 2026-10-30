@@ -91,8 +91,11 @@ export default function LoginPage() {
 
       const apiBaseUrl = process.env.NEXT_PUBLIC_SCOUT_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || window.location.origin;
 
-      // Use static HTML callback page
-      const callbackUrl = `${window.location.origin}/oauth-complete.html?marketing_opt_in=${marketingOptIn}`;
+      // The agent accepts only a same-origin PATH as its OAuth return (an
+      // absolute URL on another origin is refused as an open redirect). The
+      // browser therefore lands on the API host, whose nginx forwards
+      // /oauth-complete.html back to this origin with the one-time code.
+      const callbackUrl = `/oauth-complete.html?marketing_opt_in=${marketingOptIn}`;
       const redirectUri = encodeURIComponent(callbackUrl);
       // apiBaseUrl does NOT include /v1, so we need to add it
       const oauthUrl = `${apiBaseUrl}/v1/auth/oauth/${provider}/login`;
